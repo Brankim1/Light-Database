@@ -36,10 +36,10 @@ public class Minibase {
 //        String databaseDir = args[0];
 //        String inputFile = args[1];
 //        String outputFile = args[2];
-    	String queryName="query9";
-        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\db";
-        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\input\\"+queryName+".txt";
-        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\output\\"+queryName+".csv";
+    	String queryName="query5";
+        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
+        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
+        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
         dbCatalogType = new HashMap<String, List<String>>();
         
         readDd(databaseDir);	
@@ -72,6 +72,7 @@ public class Minibase {
             System.out.println("Head: " + head);
             body = query.getBody();
             System.out.println("Body: " + body);
+            //Separate the relational atom and comparison atom
             for (Atom i:body) {
             	try {
             		relationBody.add((RelationalAtom)i);
@@ -96,10 +97,33 @@ public class Minibase {
 //			}
 //    	}
 
-    	for(RelationalAtom relaAtom:relationBody) {
-    		ScanOperator scanOperator=new ScanOperator(relaAtom,dbCata);
-    		scanOperator.dump();
-    	}
+    	//get first table to loop
+		ScanOperator scanOperatorFirstTable=new ScanOperator(relationBody.get(0),dbCata);
+		try {
+			while((scanOperatorFirstTable.stringTem=scanOperatorFirstTable.bufferTem.readLine())!=null) {
+				scanOperatorFirstTable.getNextTuple();
+				dbCata.setTuple(scanOperatorFirstTable.tuple);
+				//for join
+				for(int i =1; i<relationBody.size();i++) {
+					JoinOperator joinOperator=new JoinOperator(relationBody.get(i),dbCata);
+					while((joinOperator.scanOperator.stringTem=joinOperator.scanOperator.bufferTem.readLine())!=null) {
+						joinOperator.getNextTuple();
+						
+					}
+		    	}
+				//for select
+				for(int i =0;i<comparisonBody.size();i++) {
+				
+				}
+				//save to DatabaseCatalog class
+				
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+    	
     	
     	
     	

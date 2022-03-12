@@ -25,18 +25,17 @@ import ed.inf.adbs.minibase.parser.QueryParser;
  */
 public class ScanOperator extends Operator{
 	Tuple tuple;
-
 	String tableName;
 	List<String> columnName;
 	List<String> columnType;
 	List<String> value;
-	RelationalAtom head;
-	List<Atom> body;
-
 	BufferedReader bufferTem;
 	String stringTem;
+	 DatabaseCatalog dbCatalogue;
+	 
 	public ScanOperator(RelationalAtom atom, DatabaseCatalog dbCatalogue) {
 		this.tableName=atom.getName();
+		this.dbCatalogue=dbCatalogue;
 		//build column name and type to tuple list in databaseCatalog.
 		columnName=new ArrayList<String>();
 		columnType=new ArrayList<String>();
@@ -65,7 +64,7 @@ public class ScanOperator extends Operator{
             }
             
             tuple= new Tuple(tableName,columnName,columnType,value);
-            
+
 		}
 		
 	

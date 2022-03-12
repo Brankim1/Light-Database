@@ -20,6 +20,7 @@ public class DatabaseCatalog {
 	HashMap<String, List<String>> dbCatalogType;
 	HashMap<String, List<String>> dbCatalog;
 	String databaseDir;
+	Tuple tuple;
 	List<Tuple> tupleList;
 	int scanNum=0;
 	public DatabaseCatalog(String databaseDir) {
@@ -46,18 +47,18 @@ public class DatabaseCatalog {
     	
 	}
 	
-	public void setTupleList(List<Tuple> tupleList){
-		this.tupleList=tupleList;
+	public void addTupleList(Tuple tuple){
+		tupleList.add(tuple);
 	}
 	public List<Tuple> getTupleList(){
 		return tupleList;
 	}
 	
-	public void addScanNum(int scanNum){
-		scanNum++;
+	public void setTuple(Tuple tuple){
+		this.tuple=tuple;
 	}
-	public int getScanNum(){
-		return scanNum;
+	public Tuple getTuple(){
+		return tuple;
 	}
 	
 }
