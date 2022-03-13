@@ -43,7 +43,7 @@ public class GroupByOperator {
 			}
 		}
 		
-		//delete Duplicate
+		//delete Duplicate tuple
 		int numk=0;
 		int numm=0;
 		while(numk<tupleList.size()) {

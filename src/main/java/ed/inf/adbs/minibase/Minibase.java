@@ -36,7 +36,7 @@ public class Minibase {
 //        String databaseDir = args[0];
 //        String inputFile = args[1];
 //        String outputFile = args[2];
-    	String queryName="query6";
+    	String queryName="query1";
         String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
         String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
         String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
@@ -97,10 +97,8 @@ public class Minibase {
     	while(tuple!=null) {
     		if(!tuple.getTableName().equals("NonVaild")) {
     			SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
-	    		tuple=selectOperator.getNextTuple();
-	    		
+	    		tuple=selectOperator.getNextTuple();	
 	    		if(tuple!=null) {
-
 	    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
 	    			tuple=projectOperator.getNextTuple();
 	    			dbCatalogue.addTupleList(tuple);
@@ -109,7 +107,6 @@ public class Minibase {
     		tuple=joinOperator.getNextTuple();
     	}
     	
-    	
     	GroupByOperator groupByOperator=new GroupByOperator(head,dbCatalogue);
 		writeToFile(outputFile);
 		
@@ -117,9 +114,9 @@ public class Minibase {
     }
     public static void writeToFile(String outputFile) {
     	
-//    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
-//			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
-//		}
+    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
+			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
+		}
     	
     	File csvFile = new File(outputFile);
     	//creat output file

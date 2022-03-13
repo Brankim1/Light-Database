@@ -58,7 +58,28 @@ public class ProjectOperator extends Operator{
 						i--;
 					}
 				}
-				// order
+				//delete the Duplicate column
+				int num1=0;
+				int num2=0;
+				while(num1<oldTuple.getColumnName().size()){
+					while(num2<oldTuple.getColumnName().size()){
+						if(num2>num1) {
+							if(oldTuple.getColumnName().get(num1).equals(oldTuple.getColumnName().get(num2))) {
+								oldTuple.getColumnName().remove(num2);
+								oldTuple.getColumnType().remove(num2);
+								oldTuple.getValue().remove(num2);
+								
+							}else {
+								num2++;
+							}
+						}else {
+							num2++;
+						}
+					}
+					num1++;
+				}
+				
+				// order column
 				List<String> columnName=new ArrayList<String>();
 				List<String> columnType=new ArrayList<String>();
 				List<String> value=new ArrayList<String>();
