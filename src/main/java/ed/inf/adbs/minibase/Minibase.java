@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class Minibase {
 	static HashMap<String, List<String>> dbCatalogType;
-	static DatabaseCatalog dbCata;
+	static DatabaseCatalog dbCatalogue;
 	
     public static void main(String[] args) {
 
@@ -36,10 +36,11 @@ public class Minibase {
 //        String databaseDir = args[0];
 //        String inputFile = args[1];
 //        String outputFile = args[2];
-    	String queryName="query5";
+    	String queryName="query4";
         String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
         String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
         String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
+        
         dbCatalogType = new HashMap<String, List<String>>();
         
         readDd(databaseDir);	
@@ -49,8 +50,8 @@ public class Minibase {
     }
     
     public static void readDd(String databaseDir){
-    	dbCata=new DatabaseCatalog(databaseDir);
-    	dbCatalogType=dbCata.dbCatalogType;
+    	dbCatalogue=new DatabaseCatalog(databaseDir);
+    	dbCatalogType=dbCatalogue.dbCatalogType;
     	
     }
     
@@ -61,6 +62,7 @@ public class Minibase {
      */
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) {
         // TODO: add your implementation
+    	//process atom
     	RelationalAtom head = null;
     	List<Atom> body;
     	List<RelationalAtom> relationBody=new ArrayList<RelationalAtom>();
@@ -87,67 +89,37 @@ public class Minibase {
             e.printStackTrace();
         }
     	
-//    	用在join里面
-//    	for(RelationalAtom i :relationBody) {
-//    		ScanOperator scanOperator=new ScanOperator(i,dbCata);
-//			int num=0;
-//			while(num<scanOperator.tupleList.size()) {
-//				scanOperator.getNextTuple();
-//				num++;
-//			}
-//    	}
 
-    	//get first table to loop
-		ScanOperator scanOperatorFirstTable=new ScanOperator(relationBody.get(0),dbCata);
-		try {
-			while((scanOperatorFirstTable.stringTem=scanOperatorFirstTable.bufferTem.readLine())!=null) {
-				scanOperatorFirstTable.getNextTuple();
-				dbCata.setTuple(scanOperatorFirstTable.tuple);
-				//for join
-				for(int i =1; i<relationBody.size();i++) {
-					JoinOperator joinOperator=new JoinOperator(relationBody.get(i),dbCata);
-					while((joinOperator.scanOperator.stringTem=joinOperator.scanOperator.bufferTem.readLine())!=null) {
-						joinOperator.getNextTuple();
-						
-					}
-		    	}
-				//for select
-				for(int i =0;i<comparisonBody.size();i++) {
-				
-				}
-				//save to DatabaseCatalog class
-				
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-    	
-    	
-    	
-    	
-    	
-    	
-//    	for(RelationalAtom relaAtom:relationBody) {
-//    		JoinOperator joinOperator=new JoinOperator(relaAtom,dbCata);
-//    		joinOperator.getNextTuple();
-//    	}
-//    	
-//		for(int i =0;i<comparisonBody.size();i++) {
-//			SelectOperator selectOperator=new SelectOperator(comparisonBody.get(i),dbCata);
-//			if(selectOperator.condition) {
-//				selectOperator.dump();
-//			}
-//		}
-		
-		
-		
-		
-//		ProjectOperator projectOperator=new ProjectOperator(head, dbCata);
-//		projectOperator.dump();
 
-		writeToFile(outputFile);
+    	ScanOperator scanOperator=new ScanOperator(relationBody.get(0),dbCatalogue);
+//    	scanOperator.dump();
+    	Tuple tuple=scanOperator.getNextTuple();
+    	
+    	while(tuple!=null) {
+    		SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
+    		tuple=selectOperator.getNextTuple();
+    		
+    		if(tuple!=null) {
+    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
+    			tuple=projectOperator.getNextTuple();
+    			dbCatalogue.addTupleList(tuple);
+    		}
+    		
+    		tuple=scanOperator.getNextTuple();
+    	}
+    	GroupByOperator groupByOperator=new GroupByOperator(head,dbCatalogue);
+    	for(int i =0;i<dbCatalogue.getTupleList().size();i++) {
+    		System.out.println(dbCatalogue.getTupleList().get(i).getValue());
+    	}
+    	
+    	
+    	
+    	
+    	
+    	
+
+
+		//writeToFile(outputFile);
 		
 		
     }

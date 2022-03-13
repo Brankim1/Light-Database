@@ -39,7 +39,7 @@ public class JoinOperator extends Operator {
 		}
 	}
 	@Override
-	public void getNextTuple() {
+	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
 		scanOperator.getNextTuple();
 		temTuple=scanOperator.tuple;

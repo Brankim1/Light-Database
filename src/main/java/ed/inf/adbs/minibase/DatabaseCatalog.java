@@ -20,9 +20,9 @@ public class DatabaseCatalog {
 	HashMap<String, List<String>> dbCatalogType;
 	HashMap<String, List<String>> dbCatalog;
 	String databaseDir;
-	Tuple tuple;
+
 	List<Tuple> tupleList;
-	int scanNum=0;
+	
 	public DatabaseCatalog(String databaseDir) {
 		this.databaseDir=databaseDir;
 		this.tupleList=new ArrayList<Tuple>();
@@ -50,15 +50,13 @@ public class DatabaseCatalog {
 	public void addTupleList(Tuple tuple){
 		tupleList.add(tuple);
 	}
+	public void setTupleList(List<Tuple> tupleList){
+		this.tupleList=tupleList;
+	}
 	public List<Tuple> getTupleList(){
 		return tupleList;
 	}
 	
-	public void setTuple(Tuple tuple){
-		this.tuple=tuple;
-	}
-	public Tuple getTuple(){
-		return tuple;
-	}
+	
 	
 }

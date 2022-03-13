@@ -54,17 +54,28 @@ public class ScanOperator extends Operator{
 	}
 
 	@Override
-	public void getNextTuple() {
+	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
 		//System.out.println(tupleList.get(num).getTableName());
-            String[] cataArr=stringTem.split(",");
-            value=new ArrayList<String>();
-            for (String i : cataArr) {
-            	value.add(i.trim());
-            }
+			try {
+				stringTem=bufferTem.readLine();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(stringTem==null) {
+				return null;
+			}else {
+				String[] cataArr=stringTem.split(",");
+	            value=new ArrayList<String>();
+	            for (String i : cataArr) {
+	            	value.add(i.trim());
+	            }
+	            tuple= new Tuple(tableName,columnName,columnType,value);
+	            
+	            return tuple;
+			}
             
-            tuple= new Tuple(tableName,columnName,columnType,value);
-
 		}
 		
 	
@@ -72,21 +83,23 @@ public class ScanOperator extends Operator{
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-	
+		File dbFile=new File(dbCatalogue.databaseDir+File.separator+"files"+File.separator+tableName+".csv");
+		try {
+	    	bufferTem=new BufferedReader(new FileReader(dbFile));
+        }catch(Exception e) {
+        	System.err.println("Database Catalogue Load Fail");
+            e.printStackTrace();
+        }
 	}
 
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub
-		try {
-			while((stringTem=bufferTem.readLine())!=null){
-				getNextTuple();
-				
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Tuple tupleDump=getNextTuple();
+		while(tupleDump!=null) {
+			tupleDump=getNextTuple();
 		}
+		
 	}
 
 	
