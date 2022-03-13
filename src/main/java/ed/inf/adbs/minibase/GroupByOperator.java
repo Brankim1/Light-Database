@@ -18,16 +18,12 @@ public class GroupByOperator {
 	DatabaseCatalog dbCatalogue;
 	RelationalAtom atom;
 
-	
-	
+
 	public GroupByOperator(RelationalAtom atom,DatabaseCatalog dbCatalogue) {
 		this.dbCatalogue=dbCatalogue;
 		this.atom=atom;
 		tupleList=new ArrayList<Tuple>();
 		tupleList.addAll(dbCatalogue.getTupleList());
-		
-		
-		
 		
 		//execute SUM &AVG
 		for(int i =0;i<atom.getTerms().size();i++) {				
@@ -65,7 +61,4 @@ public class GroupByOperator {
 		}
 		dbCatalogue.setTupleList(tupleList);
 	}
-	
-	
-
 }

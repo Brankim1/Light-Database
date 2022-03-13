@@ -36,7 +36,7 @@ public class Minibase {
 //        String databaseDir = args[0];
 //        String inputFile = args[1];
 //        String outputFile = args[2];
-    	String queryName="query4";
+    	String queryName="query6";
         String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
         String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
         String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
@@ -89,45 +89,37 @@ public class Minibase {
             e.printStackTrace();
         }
     	
-
-
-    	ScanOperator scanOperator=new ScanOperator(relationBody.get(0),dbCatalogue);
-//    	scanOperator.dump();
-    	Tuple tuple=scanOperator.getNextTuple();
+    	Tuple tuple;
     	
+    	JoinOperator joinOperator=new JoinOperator(relationBody,dbCatalogue);
+    	tuple=joinOperator.getNextTuple();
+
     	while(tuple!=null) {
-    		SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
-    		tuple=selectOperator.getNextTuple();
     		
-    		if(tuple!=null) {
-    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
-    			tuple=projectOperator.getNextTuple();
-    			dbCatalogue.addTupleList(tuple);
-    		}
+//    		SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
+//    		tuple=selectOperator.getNextTuple();
+//    		
+//    		if(tuple!=null) {
+//    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
+//    			tuple=projectOperator.getNextTuple();
+//    			dbCatalogue.addTupleList(tuple);
+//    		}
     		
-    		tuple=scanOperator.getNextTuple();
+    		System.out.println(tuple.getValue());
+    		tuple=joinOperator.getNextTuple();
     	}
+    	
+    	
     	GroupByOperator groupByOperator=new GroupByOperator(head,dbCatalogue);
-    	for(int i =0;i<dbCatalogue.getTupleList().size();i++) {
-    		System.out.println(dbCatalogue.getTupleList().get(i).getValue());
-    	}
-    	
-    	
-    	
-    	
-    	
-    	
-
-
-		//writeToFile(outputFile);
+		writeToFile(outputFile);
 		
 		
     }
     public static void writeToFile(String outputFile) {
     	
-    	for (int i =0 ;i <dbCata.getTupleList().size();i++) {
-			System.out.println(dbCata.getTupleList().get(i).getValue());
-		}
+//    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
+//			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
+//		}
     	
     	File csvFile = new File(outputFile);
     	//creat output file
@@ -139,17 +131,17 @@ public class Minibase {
         FileWriter fileWriter;
 		try {
 			fileWriter = new FileWriter(csvFile);
-			for (int j =0;j<dbCata.getTupleList().size();j++) {
+			for (int j =0;j<dbCatalogue.getTupleList().size();j++) {
 	            StringBuilder line = new StringBuilder();
-	            for (int i = 0; i < dbCata.getTupleList().get(j).getValue().size(); i++) {
+	            for (int i = 0; i < dbCatalogue.getTupleList().get(j).getValue().size(); i++) {
 	                
-	                line.append(dbCata.getTupleList().get(j).getValue().get(i));
+	                line.append(dbCatalogue.getTupleList().get(j).getValue().get(i));
 	                
-	                if (i != dbCata.getTupleList().get(j).getValue().size() - 1) {
+	                if (i != dbCatalogue.getTupleList().get(j).getValue().size() - 1) {
 	                    line.append(", ");
 	                }
 	            }
-	            if(j<dbCata.getTupleList().size()-1) {
+	            if(j<dbCatalogue.getTupleList().size()-1) {
 	            	line.append("\n");
 	            }
 	            

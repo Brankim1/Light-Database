@@ -18,7 +18,7 @@ import java.util.List;
 public class DatabaseCatalog {
 	
 	HashMap<String, List<String>> dbCatalogType;
-	HashMap<String, List<String>> dbCatalog;
+
 	String databaseDir;
 
 	List<Tuple> tupleList;
@@ -29,7 +29,7 @@ public class DatabaseCatalog {
 		File cataFile=new File(databaseDir+File.separator+"schema.txt");
     	
 		dbCatalogType=new HashMap<String, List<String>>();
-		dbCatalog=new HashMap<String, List<String>>();
+		
     	try {
 	    	BufferedReader bufferTem=new BufferedReader(new FileReader(cataFile));
 	        String stringTem;
