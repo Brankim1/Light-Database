@@ -17,13 +17,13 @@ public class JoinOperator extends Operator {
 	List<Tuple> tupleList;
 	int runIndex;
 	boolean firstInvoke=true;
-	
+	List<String> NonValidString=new ArrayList<String>();
 	public JoinOperator(List<RelationalAtom> atomList, DatabaseCatalog dbCatalogue) {
 		this.dbCatalogue=dbCatalogue;
 		this.atomList=new ArrayList<RelationalAtom>();
 		this.atomList=atomList;
 		scanOperatorList=new ArrayList<ScanOperator>();
-		
+		NonValidString.add("NonValidString");
 		tupleList=new ArrayList<Tuple>();
 		
 		runIndex=atomList.size()-1;
@@ -52,7 +52,7 @@ public class JoinOperator extends Operator {
 				if(tupleValid(tuple)) {
 					return tuple;
 				}else {
-					return null;
+					return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 				}				
 			}else {
 				while(runIndex>=0) {
@@ -66,7 +66,7 @@ public class JoinOperator extends Operator {
 						if(tupleValid(tuple)) {
 							return tuple;
 						}else {
-							return null;
+							return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 						}	
 					}else {
 						scanOperatorList.get(runIndex).reset();
@@ -109,17 +109,16 @@ public class JoinOperator extends Operator {
 	}
 	
 	public boolean tupleValid(Tuple tuple) {
-		
-		return true;
-	}
-	public boolean sameVariable(List<String> oldTupleName,List<String> temTupleName) {
-		for(int i=0;i<oldTupleName.size();i++) {
-			for(int j=0;j<temTupleName.size();j++) {
-				if(oldTupleName.get(i).equals(temTupleName.get(j))) {
-					return true;
+		for (int i = 0; i< tuple.getColumnName().size();i++) {
+			for (int j = i+1; j< tuple.getColumnName().size();j++) {
+				if(tuple.getColumnName().get(i).equals(tuple.getColumnName().get(j))) {
+					if(!tuple.getValue().get(i).equals(tuple.getValue().get(j))) {
+						return false;
+					}
 				}
 			}
 		}
-		return false;
+		return true;
 	}
+	
 }

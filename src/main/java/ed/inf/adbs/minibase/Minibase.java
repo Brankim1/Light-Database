@@ -95,17 +95,17 @@ public class Minibase {
     	tuple=joinOperator.getNextTuple();
 
     	while(tuple!=null) {
-    		
-//    		SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
-//    		tuple=selectOperator.getNextTuple();
-//    		
-//    		if(tuple!=null) {
-//    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
-//    			tuple=projectOperator.getNextTuple();
-//    			dbCatalogue.addTupleList(tuple);
-//    		}
-    		
-    		System.out.println(tuple.getValue());
+    		if(!tuple.getTableName().equals("NonVaild")) {
+    			SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
+	    		tuple=selectOperator.getNextTuple();
+	    		
+	    		if(tuple!=null) {
+
+	    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
+	    			tuple=projectOperator.getNextTuple();
+	    			dbCatalogue.addTupleList(tuple);
+	    		}
+    		}
     		tuple=joinOperator.getNextTuple();
     	}
     	
