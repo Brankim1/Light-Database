@@ -28,20 +28,19 @@ public class Minibase {
 	
     public static void main(String[] args) {
 
-//        if (args.length != 3) {
-//            System.err.println("Usage: Minibase database_dir input_file output_file");
-//            return;
-//        }
+        if (args.length != 3) {
+            System.err.println("Usage: Minibase database_dir input_file output_file");
+            return;
+        }
 
-//        String databaseDir = args[0];
-//        String inputFile = args[1];
-//        String outputFile = args[2];
-    	String queryName="query9";
-        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
-        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
-        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
-        
-    
+        String databaseDir = args[0];
+        String inputFile = args[1];
+        String outputFile = args[2];
+//    	String queryName="query6";
+//        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
+//        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
+//        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
+//            
         //read database schema
         dbCatalogue=new DatabaseCatalog(databaseDir);	
         
@@ -52,9 +51,14 @@ public class Minibase {
  
     
     /**
-     * Example method for getting started with the parser.
-     * Reads CQ from a file and prints it to screen, then extracts Head and Body
-     * from the query and prints them to screen.
+     *  four steps to evaluate CQ
+     *  1. process CQ
+     *  2. run scan,join,select, project to each tuple
+     *  3. run group By operator to tuple list
+     *  4. save tuple list to file
+     * @param databaseDir
+     * @param inputFile
+     * @param outputFile
      */
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) {
     	//process atom
@@ -112,7 +116,10 @@ public class Minibase {
 		writeToFile(outputFile);
     }
     
-    
+    /**
+     * Using fileWriter to write tuple list to csv file
+     * @param outputFile
+     */
     public static void writeToFile(String outputFile) {
     	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
 			System.out.println(dbCatalogue.getTupleList().get(i).getValue());

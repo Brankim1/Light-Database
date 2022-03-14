@@ -20,19 +20,31 @@ import ed.inf.adbs.minibase.base.Term;
 import ed.inf.adbs.minibase.parser.QueryParser;
 
 /**
+ * 
  * @author Pengcheng Jin
  *
  */
 public class ScanOperator extends Operator{
+	//tuple
 	Tuple tuple;
+	//tuple Components(such as R)
 	String tableName;
+	//tuple Components(such as x)
 	List<String> columnName;
+	//tuple Components(such as int)
 	List<String> columnType;
+	//tuple Components(such as 9)
 	List<String> value;
+	//read file buffer
 	BufferedReader bufferTem;
 	String stringTem;
-	 DatabaseCatalog dbCatalogue;
-	 
+	//DatabaseCatalog instance
+	DatabaseCatalog dbCatalogue;
+	 /**
+	  * initialize tableName, columnName, columnType and bufferTem
+	  * @param atom
+	  * @param dbCatalogue
+	  */
 	public ScanOperator(RelationalAtom atom, DatabaseCatalog dbCatalogue) {
 		this.tableName=atom.getName();
 		this.dbCatalogue=dbCatalogue;
@@ -52,7 +64,10 @@ public class ScanOperator extends Operator{
             e.printStackTrace();
         }
 	}
-
+	/**
+	 * read tuple from csv file
+	 * @return tuple
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
@@ -74,11 +89,12 @@ public class ScanOperator extends Operator{
             tuple= new Tuple(tableName,columnName,columnType,value);
             return tuple;
 		}
-        
 	}
 		
 	
-
+	/**
+	 * reset bufferTem to restart
+	 */
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
@@ -90,7 +106,9 @@ public class ScanOperator extends Operator{
             e.printStackTrace();
         }
 	}
-
+	/**
+	 * multiple run getNextTuple()
+	 */
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub

@@ -10,27 +10,41 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
 import ed.inf.adbs.minibase.base.Term;
 
 /**
- * @author pengcheng
- *
+ * It could Execute SUM & AVG and Delete Duplicate tuple
+ * @author Pengcheng Jin
+ * 
  */
 public class GroupByOperator extends Operator{
+	//buffer all tuple
 	List<Tuple> tupleList;
+	//DatabaseCatalog instance
 	DatabaseCatalog dbCatalogue;
+	//head atom
 	RelationalAtom atom;
+	//run index
 	int numIndex=0;
+	
+	/**
+	 * Initialization instance 
+	 * @param atom
+	 * @param dbCatalogue
+	 */
 	public GroupByOperator(RelationalAtom atom,DatabaseCatalog dbCatalogue) {
 		this.dbCatalogue=dbCatalogue;
 		this.atom=atom;
 		tupleList=new ArrayList<Tuple>();
 		tupleList.addAll(dbCatalogue.getTupleList());
 	}
-
+	/**
+	 * execute SUM & AVG, Delete Duplicate tuple
+	 * @return tupleList, but it saved in DatabaseCatalog instance
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
+		
 		//Execute SUM & AVG
 		for(int i =0;i<atom.getTerms().size();i++) {				
-			List<String> value=new ArrayList<String>();
 			if(atom.getTerms().get(i).toString().contains("SUM")||atom.getTerms().get(i).toString().contains("AVG")) {
 				int sum=0;
 				for(int j=0;j<tupleList.size();j++) {
@@ -68,14 +82,18 @@ public class GroupByOperator extends Operator{
 		return null;
 	}
 
-
+	/**
+	 * let numIndex=0 to restart getNextTuple()
+	 */
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
 		numIndex=0;
 	}
 
-
+	/**
+	 * multiple run getNextTuple()
+	 */
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub

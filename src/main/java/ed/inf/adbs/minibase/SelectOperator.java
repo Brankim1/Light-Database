@@ -13,17 +13,24 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
 import ed.inf.adbs.minibase.base.Term;
 
 /**
- * @author pengcheng
+ * process ComparisonAtom in each tuple
+ * @author Pengcheng Jin
  *
  */
 public class SelectOperator extends Operator {
-
-
+	//ComparisonAtom list
 	List<ComparisonAtom> comparisonList;
+	//return tuple
 	Tuple tuple;
+	//check ComparisonAtom is valid
 	boolean condition=true;
+	//run index
 	int numIndex=0;
-	
+	/**
+	 * check ComparisonAtom is valid
+	 * @param comparisonList
+	 * @param tuple
+	 */
 	public SelectOperator(List<ComparisonAtom> comparisonList,Tuple tuple) {
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
@@ -63,10 +70,13 @@ public class SelectOperator extends Operator {
 			
 			//if two atoms are same, must equal 
 			if(condition) {
-				if(atom1.equals(atom2)&&!op.equals("=")) {
-				condition=false;
-				//System.out.println("Condition false3, Terminate");
+				if(string(atom1)||string(atom2)) {
+					if(atom1.equals(atom2)&&!op.equals("=")) {
+					condition=false;
+					//System.out.println("Condition false3, Terminate");
+					}
 				}
+				
 			}
 			
 			//if one of the comparAtom is string, operator must = or !=
@@ -95,35 +105,68 @@ public class SelectOperator extends Operator {
 			
 			//if one variable, one constant, check data type whether same
 			if(condition) {
-				try {
+				if(!(!variable(atom1)&&!variable(atom2))) {
+					try {
 					if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("int")&&string(atom2)) {
 					condition=false;
 					}
-				}catch (Exception e){
-					if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("int")&&number(atom1)) {
-						
-						condition=false;
+					}catch (Exception e){
+						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("int")&&string(atom1)) {
+							
+							condition=false;
+						}
 					}
 				}
+				
 			}
 			
 			if(condition) {
-				try {
-					if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("string")&&number(atom2)) {
-						
+				if(!(!variable(atom1)&&!variable(atom2))) {
+					try {
+						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("string")&&number(atom2)) {
+							
+							condition=false;
+						}
+					}catch (Exception e1){
+						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("string")&&number(atom1)) {
+							
+							condition=false;
+						}
+					}
+				}
+			}
+			//if both constant
+			if(condition) {
+				if(!variable(atom1)&&!variable(atom2)) {
+					if(op.equals("=")&&!atom1.equals(atom2)) {
 						condition=false;
 					}
-				}catch (Exception e1){
-					if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("string")&&number(atom1)) {
-						
+					if(op.equals("!=")&&atom1.equals(atom2)) {
 						condition=false;
+					}
+					if(number(atom1)&&number(atom2)) {
+						if(op.equals(">")&&Integer.valueOf(atom1)<=Integer.valueOf(atom2)) {
+							condition=false;
+						}else if(op.equals(">=")&&Integer.valueOf(atom1)<Integer.valueOf(atom2)) {
+							condition=false;
+						}else if(op.equals("<")&&Integer.valueOf(atom1)>=Integer.valueOf(atom2)) {
+							condition=false;
+						}else if(op.equals("<=")&&Integer.valueOf(atom1)>Integer.valueOf(atom2)) {
+							condition=false;
+							System.out.println("123456");
+						}
+						
 					}
 				}
 			}
 		}
-
-		
 	}
+	/**
+	 * two main steps to run select operator
+	 * 1. delete the variable is constant in relationalAtom, such as R(8, y, z)
+	 * 2. check =,!=,<,<=,>,>= operator, if not accept ,return null
+	 * @return tuple
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
@@ -280,12 +323,19 @@ public class SelectOperator extends Operator {
 		}
 		return tuple;
 	}
+	
+	/**
+	 * set numIndex=0 to restart
+	 */
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
 		numIndex=0;
 	}
-
+	
+	/**
+	 * multiple run getNextTuple()
+	 */
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub
@@ -295,8 +345,11 @@ public class SelectOperator extends Operator {
         }
 	}
 	
-	
-	
+	/**
+	 * check string could be transfer to int
+	 * @param str
+	 * @return true/false
+	 */
 	public static boolean number(String str) {
 		str=str.trim();
 		//check number
@@ -308,7 +361,11 @@ public class SelectOperator extends Operator {
 		}
 		return false;
 	}
-	
+	/**
+	 * check string are start with "
+	 * @param str
+	 * @return true/false
+	 */
 	public static boolean string(String str) {
 		str=str.trim();
 		//check string""
@@ -317,7 +374,11 @@ public class SelectOperator extends Operator {
 		}
 		return false;
 	}
-	
+	/**
+	 * check it whether is not string and number
+	 * @param str
+	 * @return true/false
+	 */
 	public static boolean variable(String str) {
 		str=str.trim();
 		//check variable

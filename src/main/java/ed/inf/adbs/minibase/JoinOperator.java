@@ -4,19 +4,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ed.inf.adbs.minibase.base.RelationalAtom;
-
+/**
+ * Join multiple tables, all table are stored in the List<ScanOperator>, then invoke getNextTuple() once to return one tuple(Iterative model) 
+ * The join algorithm:
+ * 1. set a tuple list that store each join table first tuple;
+ * 2. use one index to mark tables.
+ * 3. let index in last table, then multiple run getNextTuple() in last List<ScanOperator>.
+ * 4. if last table return null, set last table reset(), then index-1
+ * 5. run the Second from bottom table getNextTuple(), then index+1, multiple run getNextTuple() in last List<ScanOperator>.
+ * 6. then multiple run it, it could return all join tuple.
+ * 7. the getNextTuple() could return one tuple once, there is a tupleValid() method could judge whether this tuple is valid(same column name should have same value)
+ * @author Pengcheng Jin
+ *
+ */
 public class JoinOperator extends Operator {
-	
+	//DatabaseCatalog instance
 	DatabaseCatalog dbCatalogue;
+	//all relationalAtom
 	List<RelationalAtom> atomList;
+	//to return tuple
 	Tuple tuple;
+	//save each table
 	List<ScanOperator> scanOperatorList;
+	//save temporary tuple
 	List<Tuple> tupleList;
+	//table index
 	int runIndex;
+	//if first invoke, Initialization temporary tuple
 	boolean firstInvoke=true;
+	//if tuple not valid, return it
 	List<String> NonValidString=new ArrayList<String>();
 	
-	
+	/**
+	 * Join multiple tables
+	 * @param atomList
+	 * @param dbCatalogue
+	 */
 	public JoinOperator(List<RelationalAtom> atomList, DatabaseCatalog dbCatalogue) {
 		this.dbCatalogue=dbCatalogue;
 		this.atomList=new ArrayList<RelationalAtom>();
@@ -31,7 +54,12 @@ public class JoinOperator extends Operator {
 			scanOperatorList.add(scanOperator);
 		}	
 	}
-	
+	/**
+	 * main join process, there are two steps:
+	 * 1. get join tuple
+	 * 2. return valid tuple(same column should have same value)
+	 * @return tuple/Non Valid Tuple
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		//if there are only one table, no need join, output the table
@@ -80,7 +108,9 @@ public class JoinOperator extends Operator {
 		}	
 		return null;
 	}
-
+	/**
+	 * Initialization all tables
+	 */
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
@@ -88,7 +118,9 @@ public class JoinOperator extends Operator {
 			scanOperatorList.get(i).reset();
 		}
 	}
-
+	/**
+	 * multiple run getNextTuple()
+	 */
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub
@@ -98,7 +130,11 @@ public class JoinOperator extends Operator {
 		}
 		
 	}
-	
+	/**
+	 * merge tuple list to one tuple
+	 * @param tupleList
+	 * @return tuple
+	 */
 	public Tuple ListToTuple(List<Tuple> tupleList) {
 		List<String> columnName=new ArrayList<String>();
 		List<String> columnType=new ArrayList<String>();
@@ -111,7 +147,11 @@ public class JoinOperator extends Operator {
 		return new Tuple(tupleList.get(0).getTableName(),columnName,columnType,value);
 		
 	}
-	
+	/**
+	 * check tuple valid(same column should have same value)
+	 * @param tuple
+	 * @return true/false
+	 */
 	public boolean tupleValid(Tuple tuple) {
 		for (int i = 0; i< tuple.getColumnName().size();i++) {
 			for (int j = i+1; j< tuple.getColumnName().size();j++) {

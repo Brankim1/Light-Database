@@ -11,16 +11,25 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
 import ed.inf.adbs.minibase.base.Term;
 
 /**
- * @author pengcheng
+ * process project to each tuple
+ * @author Pengcheng Jin
  *
  */
 public class ProjectOperator extends Operator{
-	
+	//head atom
 	RelationalAtom atom;
+	//save heat atom term
+	List<Term> head;
+	//save tuple
 	Tuple oldTuple;
 	Tuple newTuple;
-	List<Term> head;
+	//run index
 	int numIndex=0;
+	/**
+	 * initialize project operator
+	 * @param head atom
+	 * @param tuple
+	 */
 	public ProjectOperator(RelationalAtom atom,Tuple tuple) {
 		this.atom=atom;
 		this.oldTuple=tuple;
@@ -28,6 +37,13 @@ public class ProjectOperator extends Operator{
 		head=atom.getTerms();
 		
 	}
+	/**
+	 * there are three steps:
+	 * 1. only Retain selected columns 
+	 * 2. delete Duplicate column(which may caused by join operator)
+	 * 3. order the column
+	 * @return tuple
+	 */
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
@@ -92,7 +108,6 @@ public class ProjectOperator extends Operator{
 
 				}				
 				newTuple=new Tuple(oldTuple.getTableName(),columnName,columnType,value);
-				
 				columnName.clear();
 				columnType.clear();
 				value.clear();
@@ -105,13 +120,17 @@ public class ProjectOperator extends Operator{
 		
 
 	}
-	
+	/**
+	 * set numIndex=0 to restart
+	 */
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
 		numIndex=0;
 	}
-
+	/**
+	 * multiple run getNextTuple()
+	 */
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub

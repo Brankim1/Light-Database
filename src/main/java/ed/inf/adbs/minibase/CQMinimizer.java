@@ -21,25 +21,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * Minimization of conjunctive queries
+ * @author Pengcheng Jin 
  *
  */
 public class CQMinimizer {
 
     public static void main(String[] args) {
 
-//        if (args.length != 2) {
-//            System.err.println("Usage: CQMinimizer input_file output_file");
-//            return;
-//        }
+        if (args.length != 2) {
+            System.err.println("Usage: CQMinimizer input_file output_file");
+            return;
+        }
 
-        //String inputFile = args[0];
-        //String outputFile = args[1];
-    	String queryName="query4";
-        String inputFile = "C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\minimization\\input\\"+queryName+".txt";
-        String outputFile = "C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\minimization\\output\\"+queryName+".txt";
-        
+        String inputFile = args[0];
+        String outputFile = args[1];
+//    	String queryName="query4";
+//        String inputFile = "C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\minimization\\input\\"+queryName+".txt";
+//        String outputFile = "C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\minimization\\output\\"+queryName+".txt";
+//        
         minimizeCQ(inputFile, outputFile);
         
     }
@@ -49,8 +49,17 @@ public class CQMinimizer {
      *
      * Assume the body of the query from inputFile has no comparison atoms
      * but could potentially have constants in its relational atoms.
-     *
+     * 
+     * The algorithm of Minimization:
+     * 1. Loop each body atom, assume delete one atom, then judge whether the original CQ and this one atom are homomorphism
+     * 2. if yes, build the constant and distinguished variables dictionary(hash map)
+     * 3. build the variable dictionary by find the deleted atom homomorphism atoms.
+     * 4. check the original atom list and remaining atom list homomorphism
+     * 
+     * @param inputFile
+     * @param outputFile
      */
+
     public static void minimizeCQ(String inputFile, String outputFile) {
         // TODO: add your implementation
     	try {
@@ -98,39 +107,35 @@ public class CQMinimizer {
         	FileWriter fileWriter;
      		try {
      			fileWriter = new FileWriter(file);
-	            StringBuilder line = new StringBuilder();
-	            
-	                
-	            line.append(head+" :- "+atomBody.toString().substring(1,atomBody.toString().length()-1));
-	                
-	              
-	            fileWriter.write(line.toString());
-     	        
+	            StringBuilder line = new StringBuilder();           
+	            line.append(head+" :- "+atomBody.toString().substring(1,atomBody.toString().length()-1));	                
+	            fileWriter.write(line.toString());     	        
      	        fileWriter.close();
      		} catch (IOException e) {
      			// TODO Auto-generated catch block
      			e.printStackTrace();
      			System.out.println("write fail");
-     		}
-        	
-            
+     		}            
         }
         catch (Exception e)
         {
             System.err.println("Exception occurred during parsing");
             e.printStackTrace();
         }
-    	
-    	
     }
     
-/*
- * homomorphism algorithm: 
- * 1. build the constant and distinguished variables dictionary(hash map)
- * 2. build the variable dictionary by find the deleted atom homomorphism atoms.
- * 3. check the original atom list and remaining atom list homomorphism
- * 
- * */    
+	/*
+	 * homomorphism algorithm: 
+	 * 1. build the constant and distinguished variables dictionary(hash map)
+	 * 2. build the variable dictionary by find the deleted atom homomorphism atoms.
+	 * 3. check the original atom list and remaining atom list homomorphism
+	 * 
+	 * @param head
+	 * @param atom
+	 * @param originBody
+	 * @param temBody
+	 * @return true/false
+	 * */    
     public static boolean exist_homomo(RelationalAtom head,RelationalAtom atom,List<RelationalAtom> originBody,List<RelationalAtom> temBody) {
     	//build constant and distinguished variables dictionary(hash map)
     	Map<String, String> dictionary = new HashMap<String, String>();
@@ -147,7 +152,8 @@ public class CQMinimizer {
     	}
     	
     	//find the deleted atom homomorphism atoms. if has homomorphism atom, build the dictionary for the body variable
-    	//The homomorphism algorithm: judge the deleted atom terms, loop all of the remaining atom list(temple atom list)
+    	//algorithm: 
+    	//judge the deleted atom terms, loop all of the remaining atom list(temple atom list)
     	//if both deleted atom term and loop atom are same, homomorphism in this term;
     	//if both deleted atom term and loop atom are not constant, homomorphism in this term;
     	//if deleted atom term are constant and loop atom are not constant, homomorphism in this term;
@@ -192,7 +198,14 @@ public class CQMinimizer {
     	return false;
     }
 
-
+	/**
+	 * Judge whether two CQs are homomorphism
+	 * @param dictionary
+	 * @param head
+	 * @param originBody
+	 * @param temBody
+	 * @return true/false
+	 */
     public static boolean Listhomomorphism(Map<String, String> dictionary,RelationalAtom head,List<RelationalAtom> originBody, List<RelationalAtom> temBody) {
     	List<RelationalAtom> atomBodyTem2=new ArrayList<>();
     	//replace variable by dictionary
@@ -265,7 +278,9 @@ public class CQMinimizer {
     /**
      * Judge whether the string are constant or distinguished variables
      * 
-     * 
+     * @param head
+     * @param str
+     * @return true/false
      */
 	public static boolean constant(RelationalAtom head, String str) {
 		str=str.trim();
@@ -289,7 +304,6 @@ public class CQMinimizer {
 				k++;
 			}
 		}
-			
 		if(k!=head.getTerms().size()) {
 			cons=true;
 		}

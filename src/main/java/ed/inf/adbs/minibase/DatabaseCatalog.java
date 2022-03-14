@@ -12,17 +12,21 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author pengcheng
- *
+ * This class could read the schema.txt file and store the tuple list.
+ * @author Pengcheng Jin
+ * 
  */
 public class DatabaseCatalog {
-	
+	//the schema.txt is saved in this variable
 	HashMap<String, List<String>> dbCatalogType;
-
+	//database dictionary
 	String databaseDir;
-
+	//save tuple list in it.
 	List<Tuple> tupleList;
-	
+	/**
+	 * read the schema.txt file
+	 * @param databaseDir
+	 */
 	public DatabaseCatalog(String databaseDir) {
 		this.databaseDir=databaseDir;
 		this.tupleList=new ArrayList<Tuple>();
@@ -45,17 +49,26 @@ public class DatabaseCatalog {
             e.printStackTrace();
         }
 	}
-	
+	/**
+	 * It could add tuple to tuple list
+	 * @param tuple
+	 */
 	public void addTupleList(Tuple tuple){
 		tupleList.add(tuple);
 	}
 	
-	
+	/**
+	 * It could replace tuple list
+	 * @param tupleList
+	 */
 	public void setTupleList(List<Tuple> tupleList){
 		this.tupleList=tupleList;
 	}
 	
-	
+	/**
+	 * It could get tuple list
+	 * @return
+	 */
 	public List<Tuple> getTupleList(){
 		return tupleList;
 	}
