@@ -11,7 +11,7 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
 import ed.inf.adbs.minibase.base.Term;
 
 /**
- * @author 11791
+ * @author pengcheng
  *
  */
 public class ProjectOperator extends Operator{
@@ -19,15 +19,11 @@ public class ProjectOperator extends Operator{
 	RelationalAtom atom;
 	Tuple oldTuple;
 	Tuple newTuple;
-	List<Tuple> tupleList;
-	List<Tuple> newTupleList;
-
 	List<Term> head;
-	
+	int numIndex=0;
 	public ProjectOperator(RelationalAtom atom,Tuple tuple) {
 		this.atom=atom;
 		this.oldTuple=tuple;
-
 		head=new ArrayList<Term>();
 		head=atom.getTerms();
 		
@@ -36,6 +32,7 @@ public class ProjectOperator extends Operator{
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
 			if(head.size()!=0) {
+				numIndex++;
 				//delete the column that not selected
 				for(int i=0;i<oldTuple.getColumnName().size();i++) {
 					int numSame=0;
@@ -60,15 +57,14 @@ public class ProjectOperator extends Operator{
 				}
 				//delete the Duplicate column
 				int num1=0;
-				int num2=0;
 				while(num1<oldTuple.getColumnName().size()){
+					int num2=0;
 					while(num2<oldTuple.getColumnName().size()){
 						if(num2>num1) {
 							if(oldTuple.getColumnName().get(num1).equals(oldTuple.getColumnName().get(num2))) {
 								oldTuple.getColumnName().remove(num2);
 								oldTuple.getColumnType().remove(num2);
 								oldTuple.getValue().remove(num2);
-								
 							}else {
 								num2++;
 							}
@@ -113,13 +109,16 @@ public class ProjectOperator extends Operator{
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		
+		numIndex=0;
 	}
 
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub
-		
+		Tuple tuple = getNextTuple();
+        while (tuple!=null) {
+            tuple = getNextTuple();
+        }
 	}
 
 }

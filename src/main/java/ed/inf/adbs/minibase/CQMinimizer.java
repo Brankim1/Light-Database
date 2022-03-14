@@ -39,9 +39,9 @@ public class CQMinimizer {
     	String queryName="query4";
         String inputFile = "C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\minimization\\input\\"+queryName+".txt";
         String outputFile = "C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\minimization\\output\\"+queryName+".txt";
+        
         minimizeCQ(inputFile, outputFile);
         
-        //parsingExample(inputFile);
     }
 
     /**

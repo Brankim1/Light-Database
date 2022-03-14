@@ -23,7 +23,7 @@ import java.util.List;
  *
  */
 public class Minibase {
-	static HashMap<String, List<String>> dbCatalogType;
+
 	static DatabaseCatalog dbCatalogue;
 	
     public static void main(String[] args) {
@@ -36,24 +36,20 @@ public class Minibase {
 //        String databaseDir = args[0];
 //        String inputFile = args[1];
 //        String outputFile = args[2];
-    	String queryName="query1";
+    	String queryName="query9";
         String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
         String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
         String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
         
-        dbCatalogType = new HashMap<String, List<String>>();
-        
-        readDd(databaseDir);	
+    
+        //read database schema
+        dbCatalogue=new DatabaseCatalog(databaseDir);	
         
         evaluateCQ(databaseDir, inputFile, outputFile);
         
     }
     
-    public static void readDd(String databaseDir){
-    	dbCatalogue=new DatabaseCatalog(databaseDir);
-    	dbCatalogType=dbCatalogue.dbCatalogType;
-    	
-    }
+ 
     
     /**
      * Example method for getting started with the parser.
@@ -61,10 +57,10 @@ public class Minibase {
      * from the query and prints them to screen.
      */
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) {
-        // TODO: add your implementation
     	//process atom
     	RelationalAtom head = null;
     	List<Atom> body;
+    	//divided body Atom to relational atom and comparison atom
     	List<RelationalAtom> relationBody=new ArrayList<RelationalAtom>();
     	List<ComparisonAtom> comparisonBody=new ArrayList<ComparisonAtom>();
     	try {
@@ -90,50 +86,50 @@ public class Minibase {
         }
     	
     	Tuple tuple;
-    	
+    	//process join operator
     	JoinOperator joinOperator=new JoinOperator(relationBody,dbCatalogue);
     	tuple=joinOperator.getNextTuple();
-
+    	//using Iteration model(process join,select, project operators for each tuple)
     	while(tuple!=null) {
     		if(!tuple.getTableName().equals("NonVaild")) {
+    			//process select operator
     			SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
 	    		tuple=selectOperator.getNextTuple();	
 	    		if(tuple!=null) {
+	    			//process project operator
 	    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
 	    			tuple=projectOperator.getNextTuple();
+	    			//store each tuple to dbCatalogue
 	    			dbCatalogue.addTupleList(tuple);
 	    		}
     		}
     		tuple=joinOperator.getNextTuple();
     	}
-    	
+    	//delete Duplicate tuple and execute SUM and AVG
     	GroupByOperator groupByOperator=new GroupByOperator(head,dbCatalogue);
+    	groupByOperator.getNextTuple();
+    	//write to csv file
 		writeToFile(outputFile);
-		
-		
     }
+    
+    
     public static void writeToFile(String outputFile) {
-    	
     	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
 			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
 		}
-    	
+    	//Create output file dictionary
     	File csvFile = new File(outputFile);
-    	//creat output file
     	if(!csvFile.getParentFile().exists()) {
     		csvFile.getParentFile().mkdirs();
     	}
-    	
-    	
+    	//write to file
         FileWriter fileWriter;
 		try {
 			fileWriter = new FileWriter(csvFile);
 			for (int j =0;j<dbCatalogue.getTupleList().size();j++) {
 	            StringBuilder line = new StringBuilder();
 	            for (int i = 0; i < dbCatalogue.getTupleList().get(j).getValue().size(); i++) {
-	                
 	                line.append(dbCatalogue.getTupleList().get(j).getValue().get(i));
-	                
 	                if (i != dbCatalogue.getTupleList().get(j).getValue().size() - 1) {
 	                    line.append(", ");
 	                }
@@ -141,15 +137,13 @@ public class Minibase {
 	            if(j<dbCatalogue.getTupleList().size()-1) {
 	            	line.append("\n");
 	            }
-	            
 	            fileWriter.write(line.toString());
 	        }
 	        fileWriter.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.println("write fail");
 		}
-        
     }
+    
 }

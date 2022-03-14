@@ -20,13 +20,11 @@ public class Tuple {
 	List<String> value;
 	
 	public Tuple(String tableName, List<String> columnName, List<String> columnType, List<String> value) {
-		
 		this.tableName=tableName;
 		this.columnName=new ArrayList<String>(columnName);
 		this.columnType=new ArrayList<String>(columnType);
 		this.value=new ArrayList<String>(value);
     }
-	
 	
 	 public String getTableName() {
 	        return tableName;

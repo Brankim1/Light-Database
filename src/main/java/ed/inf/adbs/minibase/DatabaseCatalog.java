@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author 11791
+ * @author pengcheng
  *
  */
 public class DatabaseCatalog {
@@ -26,16 +26,16 @@ public class DatabaseCatalog {
 	public DatabaseCatalog(String databaseDir) {
 		this.databaseDir=databaseDir;
 		this.tupleList=new ArrayList<Tuple>();
+		//find schema address
 		File cataFile=new File(databaseDir+File.separator+"schema.txt");
     	
 		dbCatalogType=new HashMap<String, List<String>>();
-		
+		//read schema file and save to dbCatalogType
     	try {
 	    	BufferedReader bufferTem=new BufferedReader(new FileReader(cataFile));
 	        String stringTem;
 	        while((stringTem=bufferTem.readLine())!=null){
 	            String[] cataArr=stringTem.split("\\s+");
-	            
 	            List<String> dbCata = new ArrayList<String>(Arrays.asList(cataArr));
 	            dbCata.remove(0);
 	            dbCatalogType.put(cataArr[0],dbCata);
@@ -44,15 +44,18 @@ public class DatabaseCatalog {
         	System.err.println("Database Catalogue Load Fail");
             e.printStackTrace();
         }
-    	
 	}
 	
 	public void addTupleList(Tuple tuple){
 		tupleList.add(tuple);
 	}
+	
+	
 	public void setTupleList(List<Tuple> tupleList){
 		this.tupleList=tupleList;
 	}
+	
+	
 	public List<Tuple> getTupleList(){
 		return tupleList;
 	}

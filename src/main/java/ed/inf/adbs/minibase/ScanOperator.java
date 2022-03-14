@@ -43,7 +43,7 @@ public class ScanOperator extends Operator{
 			columnName.add(i.toString().trim());
 		}
 		columnType=dbCatalogue.dbCatalogType.get(tableName.toString());
-		
+		//set up dictionary to read file
 		File dbFile=new File(dbCatalogue.databaseDir+File.separator+"files"+File.separator+tableName+".csv");
 		try {
 	    	bufferTem=new BufferedReader(new FileReader(dbFile));
@@ -56,27 +56,26 @@ public class ScanOperator extends Operator{
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
-		//System.out.println(tupleList.get(num).getTableName());
-			try {
-				stringTem=bufferTem.readLine();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(stringTem==null) {
-				return null;
-			}else {
-				String[] cataArr=stringTem.split(",");
-	            value=new ArrayList<String>();
-	            for (String i : cataArr) {
-	            	value.add(i.trim());
-	            }
-	            tuple= new Tuple(tableName,columnName,columnType,value);
-	            
-	            return tuple;
-			}
-            
+		//read database to get tuple
+		try {
+			stringTem=bufferTem.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		if(stringTem==null) {
+			return null;
+		}else {
+			String[] cataArr=stringTem.split(",");
+            value=new ArrayList<String>();
+            for (String i : cataArr) {
+            	value.add(i.trim());
+            }
+            tuple= new Tuple(tableName,columnName,columnType,value);
+            return tuple;
+		}
+        
+	}
 		
 	
 

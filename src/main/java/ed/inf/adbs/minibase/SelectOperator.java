@@ -22,10 +22,9 @@ public class SelectOperator extends Operator {
 	List<ComparisonAtom> comparisonList;
 	Tuple tuple;
 	boolean condition=true;
-
+	int numIndex=0;
 	
 	public SelectOperator(List<ComparisonAtom> comparisonList,Tuple tuple) {
-		
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
 		this.tuple=tuple;
@@ -37,7 +36,6 @@ public class SelectOperator extends Operator {
 			String op=comparAtom.getOp().toString().trim();	
 			
 			//if comparAtom variable is not in the RelationalAtom column name
-			
 			int numAtom1=0;
 			int numAtom2=0;
 			for(int j=0;j<tuple.getColumnName().size();j++) {
@@ -141,11 +139,12 @@ public class SelectOperator extends Operator {
 		}
 		
 		for(ComparisonAtom comparAtom:comparisonList) {
+			numIndex++;
 			String firstElem=comparAtom.getTerm1().toString().trim();
 			String secondElem=comparAtom.getTerm2().toString().trim();
 			ComparisonOperator operator=comparAtom.getOp();	
 			
-			
+			//if both are variable, compare two column
 			if(variable(firstElem)&&variable(secondElem)) {
 				for(int j=0;j<tuple.getColumnName().size();j++) {
 					if(tuple.getColumnName().get(j).toString().trim().equals(firstElem)) {
@@ -190,6 +189,7 @@ public class SelectOperator extends Operator {
 					}					
 				}
 			}else if(variable(firstElem)){
+				//if first is variable, second is constant
 				for(int j=0;j<tuple.getColumnName().size();j++) {
 					
 					if(tuple.getColumnName().get(j).toString().trim().equals(firstElem)) {
@@ -232,13 +232,13 @@ public class SelectOperator extends Operator {
 					}	
 				}
 			}else if(variable(secondElem)){
+				//if first is constant, second is variable
 				for(int j=0;j<tuple.getColumnName().size();j++) {
 					if(tuple.getColumnName().get(j).toString().trim().equals(secondElem)) {
 						switch(operator) {
 							case EQ:
 								if(!tuple.getValue().get(j).equals(firstElem)){
 									return null;
-									
 								}		
 								break;
 							case NEQ:
@@ -283,13 +283,16 @@ public class SelectOperator extends Operator {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-	
+		numIndex=0;
 	}
 
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub
-		
+		Tuple tuple = getNextTuple();
+        while (tuple!=null) {
+            tuple = getNextTuple();
+        }
 	}
 	
 	
@@ -317,7 +320,7 @@ public class SelectOperator extends Operator {
 	
 	public static boolean variable(String str) {
 		str=str.trim();
-		//check string""
+		//check variable
 		if (string(str)||number(str)) {
 			return false;
 		}
