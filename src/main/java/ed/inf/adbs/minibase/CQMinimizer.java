@@ -67,10 +67,10 @@ public class CQMinimizer {
 
             System.out.println("Entire query: " + query);
             RelationalAtom head = query.getHead();
-            System.out.println("Head: " + head);
+//            System.out.println("Head: " + head);
             
             List<Atom> body = query.getBody();
-            System.out.println("Body: " + body);
+//            System.out.println("Body: " + body);
             
             // change body(atom list) to relational atom list
             List<RelationalAtom> atomBody = new ArrayList<RelationalAtom>();
@@ -111,6 +111,7 @@ public class CQMinimizer {
 	            line.append(head+" :- "+atomBody.toString().substring(1,atomBody.toString().length()-1));	                
 	            fileWriter.write(line.toString());     	        
      	        fileWriter.close();
+     	       System.out.println("Succesful Minimization");
      		} catch (IOException e) {
      			// TODO Auto-generated catch block
      			e.printStackTrace();

@@ -71,9 +71,9 @@ public class Minibase {
             Query query = QueryParser.parse(Paths.get(inputFile));
             System.out.println("Entire query: " + query);
             head = query.getHead();
-            System.out.println("Head: " + head);
+//            System.out.println("Head: " + head);
             body = query.getBody();
-            System.out.println("Body: " + body);
+//            System.out.println("Body: " + body);
             //Separate the relational atom and comparison atom
             for (Atom i:body) {
             	try {
@@ -121,9 +121,9 @@ public class Minibase {
      * @param outputFile
      */
     public static void writeToFile(String outputFile) {
-    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
-			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
-		}
+//    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
+//			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
+//		}
     	//Create output file dictionary
     	File csvFile = new File(outputFile);
     	if(!csvFile.getParentFile().exists()) {
@@ -147,6 +147,7 @@ public class Minibase {
 	            fileWriter.write(line.toString());
 	        }
 	        fileWriter.close();
+	        System.out.println("Succesful Evaluation");
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("write fail");
