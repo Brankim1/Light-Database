@@ -36,7 +36,7 @@ public class Minibase {
 //        String databaseDir = args[0];
 //        String inputFile = args[1];
 //        String outputFile = args[2];
-    	String queryName="query6";
+    	String queryName="query1";
         String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
         String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
         String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
@@ -104,16 +104,24 @@ public class Minibase {
 	    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
 	    			tuple=projectOperator.getNextTuple();
 	    			//store each tuple to dbCatalogue
-	    			dbCatalogue.addTupleList(tuple);
+	    			if(tuple!=null) {
+	    				dbCatalogue.addTupleList(tuple);
+	    			}
+	    			
 	    		}
     		}
     		tuple=joinOperator.getNextTuple();
     	}
-    	//delete Duplicate tuple and execute SUM and AVG
-    	GroupByOperator groupByOperator=new GroupByOperator(head,dbCatalogue);
-    	groupByOperator.getNextTuple();
-    	//write to csv file
-		writeToFile(outputFile);
+    	if(dbCatalogue.getTupleList().size()!=0) {
+    		//delete Duplicate tuple and execute SUM and AVG
+        	GroupByOperator groupByOperator=new GroupByOperator(head,dbCatalogue);
+        	groupByOperator.getNextTuple();
+        	//write to csv file
+    		writeToFile(outputFile);
+    	}else {
+    		System.out.println("No result");
+    	}
+    	
     }
     
     /**
