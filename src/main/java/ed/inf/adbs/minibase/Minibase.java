@@ -28,19 +28,19 @@ public class Minibase {
 	
     public static void main(String[] args) {
 
-        if (args.length != 3) {
-            System.err.println("Usage: Minibase database_dir input_file output_file");
-            return;
-        }
-
-        String databaseDir = args[0];
-        String inputFile = args[1];
-        String outputFile = args[2];
-//    	String queryName="query6";
-//        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
-//        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
-//        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
-//            
+//        if (args.length != 3) {
+//            System.err.println("Usage: Minibase database_dir input_file output_file");
+//            return;
+//        }
+//
+//        String databaseDir = args[0];
+//        String inputFile = args[1];
+//        String outputFile = args[2];
+    	String queryName="query6";
+        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\db";
+        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\input\\"+queryName+".txt";
+        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Database-CQ-Min-Eva\\data\\evaluation\\output\\"+queryName+".csv";
+            
         //read database schema
         dbCatalogue=new DatabaseCatalog(databaseDir);	
         

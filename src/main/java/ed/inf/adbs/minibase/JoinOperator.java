@@ -9,9 +9,9 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
  * The join algorithm:
  * 1. set a tuple list that store each join table first tuple;
  * 2. use one index to mark tables.
- * 3. let index in last table, then multiple run getNextTuple() in last List<ScanOperator>.
- * 4. if last table return null, set last table reset(), then index-1
- * 5. run the Second from bottom table getNextTuple(), then index+1, multiple run getNextTuple() in last List<ScanOperator>.
+ * 3. let index =0 , then multiple run getNextTuple() in last List<ScanOperator>.(ensure it is left join)
+ * 4. if first table return null, set first table reset(), then index+1
+ * 5. run the Second table getNextTuple(), then index to zero, multiple run getNextTuple() in first table in List<ScanOperator>.
  * 6. then multiple run it, it could return all join tuple.
  * 7. the getNextTuple() could return one tuple once, there is a tupleValid() method could judge whether this tuple is valid(same column name should have same value)
  * @author Pengcheng Jin
@@ -34,7 +34,6 @@ public class JoinOperator extends Operator {
 	boolean firstInvoke=true;
 	//if tuple not valid, return it
 	List<String> NonValidString=new ArrayList<String>();
-	
 	/**
 	 * Join multiple tables
 	 * @param atomList
@@ -47,7 +46,7 @@ public class JoinOperator extends Operator {
 		scanOperatorList=new ArrayList<ScanOperator>();
 		NonValidString.add("NonValidString");
 		tupleList=new ArrayList<Tuple>();
-		runIndex=atomList.size()-1;
+		runIndex=0;
 		//init scan operator, and add them to list
 		for(int i =0;i<atomList.size();i++) {
 			ScanOperator scanOperator=new ScanOperator(atomList.get(i),dbCatalogue);
@@ -84,14 +83,15 @@ public class JoinOperator extends Operator {
 				}				
 			}else {
 				//if the getNextTuple is not the first invoke, use one index to loop all table, which are explained detail in README.md file
-				while(runIndex>=0) {
+				while(runIndex>=0&&runIndex<scanOperatorList.size()) {
 					Tuple temTuple=scanOperatorList.get(runIndex).getNextTuple();
 					if(temTuple!=null) {
 						tupleList.set(runIndex, temTuple);
-						while(runIndex<(atomList.size()-1)) {
-							runIndex++;
+						while(runIndex>0) {
+							runIndex--;
 						}
 						tuple=ListToTuple(tupleList);
+						
 						if(tupleValid(tuple)) {
 							return tuple;
 						}else {
@@ -101,7 +101,7 @@ public class JoinOperator extends Operator {
 						scanOperatorList.get(runIndex).reset();
 						temTuple=scanOperatorList.get(runIndex).getNextTuple();
 						tupleList.set(runIndex, temTuple);
-						runIndex--;
+						runIndex++;
 					}
 				}
 			}
