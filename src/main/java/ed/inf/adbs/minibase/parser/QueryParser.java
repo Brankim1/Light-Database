@@ -69,7 +69,7 @@ public class QueryParser {
     			
     			head = new RelationalAtom(headName, newSUMHeadVariables);
     			
-                System.out.println("SUM variable name: " + ctx.head().sumagg().variable().getText());
+                // System.out.println("SUM variable name: " + ctx.head().sumagg().variable().getText());
             }
 
             // Check if AVG exists
@@ -83,7 +83,7 @@ public class QueryParser {
             	newAVGHeadVariables.add(temTerm);
             		
     			head = new RelationalAtom(headName, newAVGHeadVariables);
-                System.out.println("SUM variable name: " + ctx.head().avgagg().variable().getText());
+                // System.out.println("SUM variable name: " + ctx.head().avgagg().variable().getText());
  
             }
 
