@@ -24,10 +24,30 @@ public class SelectOperator extends Operator {
 	Tuple tuple;
 	//check ComparisonAtom is valid
 	boolean condition=true;
-	//run index
-	int numIndex=0;
+	//scan operator, used in only one relational atom
+	ScanOperator scanOperator;
+	//RelationalAtom, used in only one relational atom
+	RelationalAtom atom; 
+	//DatabaseCatalog, used in only one relational atom
+	DatabaseCatalog dbCatalogue;
+
 	/**
-	 * check ComparisonAtom is valid
+	 * init select operator for only one relationalAtom
+	 * @param comparisonList
+	 * @param atom
+	 * @param dbCatalogue
+	 */
+	public SelectOperator(List<ComparisonAtom> comparisonList,RelationalAtom atom, DatabaseCatalog dbCatalogue) {
+		this.comparisonList=new ArrayList<ComparisonAtom>();
+		this.comparisonList=comparisonList;
+		this.atom=atom;
+		this.dbCatalogue=dbCatalogue;
+		scanOperator=new ScanOperator(atom,dbCatalogue);
+		tuple=scanOperator.getNextTuple();
+		conditionCheck(comparisonList,tuple);
+	}
+	/**
+	 * init select operator for multiple relationalAtom and handle only one tuple
 	 * @param comparisonList
 	 * @param tuple
 	 */
@@ -35,136 +55,13 @@ public class SelectOperator extends Operator {
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
 		this.tuple=tuple;
+		conditionCheck(comparisonList,tuple);
 		
-		//condition false checking
-		for(ComparisonAtom comparAtom:comparisonList) {
-			String atom1=comparAtom.getTerm1().toString().trim();
-			String atom2=comparAtom.getTerm2().toString().trim();
-			String op=comparAtom.getOp().toString().trim();	
-			
-			//if comparAtom variable is not in the RelationalAtom column name
-			int numAtom1=0;
-			int numAtom2=0;
-			for(int j=0;j<tuple.getColumnName().size();j++) {
-				if(!variable(atom1)) {
-					numAtom1=-1;
-				}
-				if(!variable(atom2)) {
-					numAtom2=-1;
-				}
-				if(variable(atom1)&&tuple.getColumnName().get(j).equals(atom1)) {
-					numAtom1++;
-				}		
-				if(variable(atom2)&&tuple.getColumnName().get(j).equals(atom2)) {
-					numAtom2++;
-				}
-			}
-			if(numAtom1==0) {
-				condition=false;
-				//System.out.println("Condition false1, Terminate");
-			}
-			if(numAtom2==0) {
-				condition=false;
-				//System.out.println("Condition false2, Terminate");
-			}
-			
-			//if two atoms are same, must equal 
-			if(condition) {
-				if(string(atom1)||string(atom2)) {
-					if(atom1.equals(atom2)&&!op.equals("=")) {
-					condition=false;
-					//System.out.println("Condition false3, Terminate");
-					}
-				}
-				
-			}
-			
-			//if one of the comparAtom is string, operator must = or !=
-			if(condition) {
-				if(string(atom1)||string(atom2)) {
-					if(op.equals("=")||op.equals("!=")) {
-						
-					}else {
-						condition=false;
-						//System.out.println("Condition false4, Terminate");
-					}
-				}		
-			}
-			
-			//if both variable, must same data type
-			if(condition) {
-				try {
-					if(!tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString())) {
-						condition=false;
-						//System.out.println("Condition false5, Terminate");
-					}
-				}catch (Exception e){
-					
-				}
-			}
-			
-			//if one variable, one constant, check data type whether same
-			if(condition) {
-				if(!(!variable(atom1)&&!variable(atom2))) {
-					try {
-					if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("int")&&string(atom2)) {
-					condition=false;
-					}
-					}catch (Exception e){
-						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("int")&&string(atom1)) {
-							
-							condition=false;
-						}
-					}
-				}
-				
-			}
-			
-			if(condition) {
-				if(!(!variable(atom1)&&!variable(atom2))) {
-					try {
-						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("string")&&number(atom2)) {
-							
-							condition=false;
-						}
-					}catch (Exception e1){
-						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("string")&&number(atom1)) {
-							
-							condition=false;
-						}
-					}
-				}
-			}
-			//if both constant
-			if(condition) {
-				if(!variable(atom1)&&!variable(atom2)) {
-					if(op.equals("=")&&!atom1.equals(atom2)) {
-						condition=false;
-					}
-					if(op.equals("!=")&&atom1.equals(atom2)) {
-						condition=false;
-					}
-					if(number(atom1)&&number(atom2)) {
-						if(op.equals(">")&&Integer.valueOf(atom1)<=Integer.valueOf(atom2)) {
-							condition=false;
-						}else if(op.equals(">=")&&Integer.valueOf(atom1)<Integer.valueOf(atom2)) {
-							condition=false;
-						}else if(op.equals("<")&&Integer.valueOf(atom1)>=Integer.valueOf(atom2)) {
-							condition=false;
-						}else if(op.equals("<=")&&Integer.valueOf(atom1)>Integer.valueOf(atom2)) {
-							condition=false;
-							System.out.println("123456");
-						}
-						
-					}
-				}
-			}
-		}
 	}
+	
 	/**
-	 * two main steps to run select operator
-	 * 1. delete the variable is constant in relationalAtom, such as R(8, y, z)
-	 * 2. check =,!=,<,<=,>,>= operator, if not accept ,return null
+	 * if only one relation atom, invoke scan operator, then run select
+	 * if only one tuple are import, run select
 	 * @return tuple
 	 */
 	@Override
@@ -173,16 +70,54 @@ public class SelectOperator extends Operator {
 		if(condition!=true) {
 			return null;
 		}
-
-		//delete the variable is constant in relationalAtom, such as R(8, y, z)
+		//for multiple relationalAtom and handle only one tuple
+		if(atom==null) {
+			//delete the variable is constant in relationalAtom, such as R(8, y, z)
+			tuple=runSelect();
+		}else {
+			//for only one relationalAtom
+			tuple=scanOperator.getNextTuple();
+			tuple=runSelect();
+		}
+		return tuple;
+	}
+	
+	
+	/**
+	 * re scan to restart
+	 */
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+		scanOperator=new ScanOperator(atom,dbCatalogue);
+	}
+	
+	/**
+	 * multiple run getNextTuple()
+	 */
+	@Override
+	public void dump() {
+		// TODO Auto-generated method stub
+		tuple =getNextTuple();
+        while (tuple!=null) {
+            tuple = getNextTuple();
+        }
+	}
+	
+	
+	/**
+	 * two main steps to run select operator
+	 * 1. delete the variable is constant in relationalAtom, such as R(8, y, z)
+	 * 2. check =,!=,<,<=,>,>= operator, if not accept ,return null
+	 * @return tuple
+	 */
+	public Tuple runSelect() {
 		for(int j=0;j<tuple.getColumnName().size();j++) {
 			if(!variable(tuple.getColumnName().get(j))&&!tuple.getValue().get(j).equals(tuple.getColumnName().get(j))) {
 				return null;
 			}
-		}
-		
+		}		
 		for(ComparisonAtom comparAtom:comparisonList) {
-			numIndex++;
 			String firstElem=comparAtom.getTerm1().toString().trim();
 			String secondElem=comparAtom.getTerm2().toString().trim();
 			ComparisonOperator operator=comparAtom.getOp();	
@@ -325,26 +260,137 @@ public class SelectOperator extends Operator {
 	}
 	
 	/**
-	 * set numIndex=0 to restart
+	 * check ComparisonAtom is valid
+	 * @param comparisonList
+	 * @param tuple
 	 */
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-		numIndex=0;
+	public void conditionCheck(List<ComparisonAtom> comparisonList,Tuple tuple) {
+		//condition false checking
+		for(ComparisonAtom comparAtom:comparisonList) {
+			String atom1=comparAtom.getTerm1().toString().trim();
+			String atom2=comparAtom.getTerm2().toString().trim();
+			String op=comparAtom.getOp().toString().trim();	
+			
+			//if comparAtom variable is not in the RelationalAtom column name
+			int numAtom1=0;
+			int numAtom2=0;
+			for(int j=0;j<tuple.getColumnName().size();j++) {
+				if(!variable(atom1)) {
+					numAtom1=-1;
+				}
+				if(!variable(atom2)) {
+					numAtom2=-1;
+				}
+				if(variable(atom1)&&tuple.getColumnName().get(j).equals(atom1)) {
+					numAtom1++;
+				}		
+				if(variable(atom2)&&tuple.getColumnName().get(j).equals(atom2)) {
+					numAtom2++;
+				}
+			}
+			if(numAtom1==0) {
+				condition=false;
+				//System.out.println("Condition false1, Terminate");
+			}
+			if(numAtom2==0) {
+				condition=false;
+				//System.out.println("Condition false2, Terminate");
+			}
+			
+			//if two atoms are same, must equal 
+			if(condition) {
+				if(string(atom1)||string(atom2)) {
+					if(atom1.equals(atom2)&&!op.equals("=")) {
+					condition=false;
+					//System.out.println("Condition false3, Terminate");
+					}
+				}
+				
+			}
+			
+			//if one of the comparAtom is string, operator must = or !=
+			if(condition) {
+				if(string(atom1)||string(atom2)) {
+					if(op.equals("=")||op.equals("!=")) {
+						
+					}else {
+						condition=false;
+						//System.out.println("Condition false4, Terminate");
+					}
+				}		
+			}
+			
+			//if both variable, must same data type
+			if(condition) {
+				try {
+					if(!tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString())) {
+						condition=false;
+						//System.out.println("Condition false5, Terminate");
+					}
+				}catch (Exception e){
+					
+				}
+			}
+			
+			//if one variable, one constant, check data type whether same
+			if(condition) {
+				if(!(!variable(atom1)&&!variable(atom2))) {
+					try {
+					if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("int")&&string(atom2)) {
+					condition=false;
+					}
+					}catch (Exception e){
+						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("int")&&string(atom1)) {
+							
+							condition=false;
+						}
+					}
+				}
+				
+			}
+			
+			if(condition) {
+				if(!(!variable(atom1)&&!variable(atom2))) {
+					try {
+						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom1)).toString().equals("string")&&number(atom2)) {
+							
+							condition=false;
+						}
+					}catch (Exception e1){
+						if(tuple.getColumnType().get(tuple.getColumnName().indexOf(atom2)).toString().equals("string")&&number(atom1)) {
+							
+							condition=false;
+						}
+					}
+				}
+			}
+			//if both constant
+			if(condition) {
+				if(!variable(atom1)&&!variable(atom2)) {
+					if(op.equals("=")&&!atom1.equals(atom2)) {
+						condition=false;
+					}
+					if(op.equals("!=")&&atom1.equals(atom2)) {
+						condition=false;
+					}
+					if(number(atom1)&&number(atom2)) {
+						if(op.equals(">")&&Integer.valueOf(atom1)<=Integer.valueOf(atom2)) {
+							condition=false;
+						}else if(op.equals(">=")&&Integer.valueOf(atom1)<Integer.valueOf(atom2)) {
+							condition=false;
+						}else if(op.equals("<")&&Integer.valueOf(atom1)>=Integer.valueOf(atom2)) {
+							condition=false;
+						}else if(op.equals("<=")&&Integer.valueOf(atom1)>Integer.valueOf(atom2)) {
+							condition=false;
+							System.out.println("123456");
+						}
+						
+					}
+				}
+			}
+		}
 	}
-	
-	/**
-	 * multiple run getNextTuple()
-	 */
-	@Override
-	public void dump() {
-		// TODO Auto-generated method stub
-		Tuple tuple = getNextTuple();
-        while (tuple!=null) {
-            tuple = getNextTuple();
-        }
-	}
-	
+		
 	/**
 	 * check string could be transfer to int
 	 * @param str
@@ -361,6 +407,8 @@ public class SelectOperator extends Operator {
 		}
 		return false;
 	}
+	
+	
 	/**
 	 * check string are start with "
 	 * @param str
@@ -374,6 +422,7 @@ public class SelectOperator extends Operator {
 		}
 		return false;
 	}
+	
 	/**
 	 * check it whether is not string and number
 	 * @param str

@@ -20,7 +20,7 @@ import ed.inf.adbs.minibase.base.Term;
 import ed.inf.adbs.minibase.parser.QueryParser;
 
 /**
- * 
+ * ScanOperator that could scan the table tuple
  * @author Pengcheng Jin
  *
  */
@@ -81,11 +81,43 @@ public class ScanOperator extends Operator{
 		if(stringTem==null) {
 			return null;
 		}else {
+			boolean quotation=false;
+			//handle comma in string,such as tuple is (a,'pengcheng,jin,edinburgh',4)
+			//change comma than in the string to `, then split by comma
+			for(int i =0;i<stringTem.length();i++) {
+				String singleStr=Character.toString(stringTem.charAt(i));
+				if(quotation==true) {
+					if(singleStr.equals(",")) {
+						char[] temChars = stringTem.toCharArray();
+						temChars[i] = '`';
+						stringTem = String.valueOf(temChars);
+					}
+				}
+				if(singleStr.equals("'")) {
+					if(quotation==false) {
+						quotation=true;
+					}else {
+						quotation=false;
+					}
+					
+				}
+				
+			}
+			
 			String[] cataArr=stringTem.split(",");
             value=new ArrayList<String>();
-            for (String i : cataArr) {
-            	value.add(i.trim());
+            for (int i=0;i<cataArr.length;i++) {
+            	String finalString=cataArr[i];
+            	for(int j=0;j<finalString.length();j++) {
+            		if(Character.toString(finalString.charAt(j)).equals("`")) {
+						char[] temChars = finalString.toCharArray();
+						temChars[j] = ',';
+						finalString = String.valueOf(temChars);
+					}
+            	}
+            	value.add(finalString.trim());
             }
+            
             tuple= new Tuple(tableName,columnName,columnType,value);
             return tuple;
 		}
