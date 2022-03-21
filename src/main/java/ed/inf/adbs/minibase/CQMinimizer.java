@@ -54,12 +54,11 @@ public class CQMinimizer {
      * 1. Loop each body atom, assume delete one atom, then judge whether the original CQ and this one atom are homomorphism
      * 2. if yes, build the constant and distinguished variables dictionary(hash map)
      * 3. build the variable dictionary by find the deleted atom homomorphism atoms.
-     * 4. check the original atom list and remaining atom list homomorphism
+     * 4. check the original CQ and (original CQ - deleted atom) atom list are homomorphism
      * 
      * @param inputFile
      * @param outputFile
      */
-
     public static void minimizeCQ(String inputFile, String outputFile) {
         // TODO: add your implementation
     	try {
@@ -80,12 +79,13 @@ public class CQMinimizer {
             
             //main process of Minimize CQ
             //Loop each body atom, assume delete one atom, then judge whether the original CQ and this one are homomorphism
-            //if homomorphism, delete this atom; otherwise, keep it.
+            //if homomorphism, delete it.
             int i = 0;
             int index=0;
             int k=atomBody.size();
+            List<RelationalAtom> atomBodyTem=new ArrayList<>();
             while(i<k) {
-            	List<RelationalAtom> atomBodyTem=new ArrayList<>();
+            	atomBodyTem.clear();
             	atomBodyTem.addAll(atomBody);
             	atomBodyTem.remove(index);
             	if(exist_homomo(head,atomBody.get(index),atomBody,atomBodyTem)) {
@@ -96,7 +96,7 @@ public class CQMinimizer {
             	i++;
             }
             
-            System.out.println("minimizeCQ is "+head+" :- "+atomBody.toString().substring(1,atomBody.toString().length()-1));	
+//            System.out.println("minimizeCQ is "+head+" :- "+atomBody.toString().substring(1,atomBody.toString().length()-1));	
             
             //write to the file
         	File file = new File(outputFile);
@@ -199,8 +199,13 @@ public class CQMinimizer {
     	return false;
     }
 
+    
 	/**
-	 * Judge whether two CQs are homomorphism
+	 * Judge whether two CQs are homomorphism, after the dictionary are build.
+	 * step:
+	 * 1. replace the CQs by dictionary
+	 * 2. add all dictionary key as constant
+	 * 3. rerun homomorphism algorithm.
 	 * @param dictionary
 	 * @param head
 	 * @param originBody
@@ -276,8 +281,10 @@ public class CQMinimizer {
     	return false;
     
     }
+    
+    
     /**
-     * Judge whether the string are constant or distinguished variables
+     * Judge whether term are constant or distinguished variables
      * 
      * @param head
      * @param str
@@ -312,8 +319,7 @@ public class CQMinimizer {
 			return true;
 		}else {
 			return false;
-		}
-			
+		}	
 	}
 
 }
