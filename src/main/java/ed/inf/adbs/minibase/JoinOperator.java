@@ -1,8 +1,10 @@
 package ed.inf.adbs.minibase;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import ed.inf.adbs.minibase.base.ComparisonAtom;
 import ed.inf.adbs.minibase.base.RelationalAtom;
 /**
  * Using block nested loops join
@@ -11,11 +13,13 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
  * 1. set a tuple list that store each join table first tuple;
  * 2. use one index to mark tables.
  * 3. let index =0 , then multiple run getNextTuple() in index List<ScanOperator>.(it could ensure it is left join)
- * 4. if first table return null, set first table reset(), then index+1
- * 5. run the Second table getNextTuple(), then index to zero, multiple run getNextTuple() in first table in List<ScanOperator>.
- * 6. then multiple run it, it could return all join tuple.
- * The getNextTuple() could return one tuple once, there is a tupleValid() method could judge whether this tuple is valid(do selection), 
- * so this method could ensure do selection in each invoke getNextTuple(). rather than waiting for the cross product.
+ * 4. ScanOperator getNextTuple() will return a tuple, then invoke Select Operator to compare tuple.
+ * 5. if selectOperator return a valid tuple, merge the list tuple to a full tuple
+ * 6. check the full tuple is valid, if different table column name is same, the value should same. then return the full tuple.
+ * 7. if first table return null, set first table reset(), then index+1
+ * 8. run the Second table getNextTuple(), then index to zero, multiple run getNextTuple() in first table in List<ScanOperator>.
+ * 9. then multiple run it, it could return all join tuple.
+ * 
  * @author Pengcheng Jin
  *
  */
@@ -24,6 +28,8 @@ public class JoinOperator extends Operator {
 	DatabaseCatalog dbCatalogue;
 	//all relationalAtom
 	List<RelationalAtom> atomList;
+	//all ComparisonAtom
+	List<ComparisonAtom> comparisonBody;
 	//to return tuple
 	Tuple tuple;
 	//save each table
@@ -36,15 +42,19 @@ public class JoinOperator extends Operator {
 	boolean firstInvoke=true;
 	//if tuple not valid, return it
 	List<String> NonValidString=new ArrayList<String>();
+	
 	/**
 	 * Join multiple tables
 	 * @param atomList
 	 * @param dbCatalogue
 	 */
-	public JoinOperator(List<RelationalAtom> atomList, DatabaseCatalog dbCatalogue) {
+	public JoinOperator(List<RelationalAtom> atomList, List<ComparisonAtom> comparisonBody,DatabaseCatalog dbCatalogue) {
 		this.dbCatalogue=dbCatalogue;
 		this.atomList=new ArrayList<RelationalAtom>();
 		this.atomList=atomList;
+		this.comparisonBody=new ArrayList<ComparisonAtom>();
+		this.comparisonBody=comparisonBody;
+		
 		scanOperatorList=new ArrayList<ScanOperator>();
 		NonValidString.add("NonValidString");
 		tupleList=new ArrayList<Tuple>();
@@ -63,31 +73,33 @@ public class JoinOperator extends Operator {
 	 */
 	@Override
 	public Tuple getNextTuple() {
-		//if there are only one table, no need join, output the table
-		if(atomList.size()==1) {
-			tuple=scanOperatorList.get(0).getNextTuple();
-			return tuple;
-		}else {//if there are more than one table, join it
-			//if the getNextTuple is the first invoke, init a tuple list that contains the first tuple in each table
-			if(firstInvoke==true) {
-				firstInvoke=false;
-				for(int i =0;i<scanOperatorList.size();i++) {
-					tupleList.add(scanOperatorList.get(i).getNextTuple());
-					
-				}
-				//change tuple list to a list
-				tuple=ListToTuple(tupleList);
-				//check tuple is valid(such as x should same)
-				if(tupleValid(tuple)) {
-					return tuple;
-				}else {
-					return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
-				}				
+		//if there are more than one table, join it
+		//if the getNextTuple is the first invoke, init a tuple list that contains the first tuple in each table
+		if(firstInvoke==true) {
+			firstInvoke=false;
+			for(int i =0;i<scanOperatorList.size();i++) {
+				Tuple tuple=scanOperatorList.get(i).getNextTuple();
+				tupleList.add(tuple);
+			}
+			//change tuple list to a list
+			tuple=ListToTuple(tupleList);
+//			System.out.println(kkk);
+//			System.out.println(tuple.getValue());
+//			kkk++;
+			//check tuple is valid(such as x should same)
+			if(tupleValid(tuple)) {
+				return tuple;
 			}else {
-				//if the getNextTuple is not the first invoke, use one index to loop all table, which are explained detail in README.md file
-				while(runIndex>=0&&runIndex<scanOperatorList.size()) {
-					Tuple temTuple=scanOperatorList.get(runIndex).getNextTuple();
-					if(temTuple!=null) {
+				return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+			}				
+		}else {
+			//if the getNextTuple is not the first invoke, use one index to loop all table, which are explained detail in README.md file
+			while(runIndex>=0&&runIndex<scanOperatorList.size()) {
+				Tuple temTuple=scanOperatorList.get(runIndex).getNextTuple();
+				if(temTuple!=null) {
+					//temTuple check such as x=1 
+					
+					if(compareTuple(temTuple,comparisonBody)==true) {
 						tupleList.set(runIndex, temTuple);
 						while(runIndex>0) {
 							runIndex--;
@@ -98,15 +110,19 @@ public class JoinOperator extends Operator {
 							return tuple;
 						}else {
 							return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
-						}	
+						}
 					}else {
-						scanOperatorList.get(runIndex).reset();
-						temTuple=scanOperatorList.get(runIndex).getNextTuple();
-						tupleList.set(runIndex, temTuple);
-						runIndex++;
+						return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 					}
+						
+				}else {
+					scanOperatorList.get(runIndex).reset();
+					temTuple=scanOperatorList.get(runIndex).getNextTuple();
+					tupleList.set(runIndex, temTuple);
+					runIndex++;
 				}
 			}
+			
 		}	
 		return null;
 	}
@@ -116,8 +132,13 @@ public class JoinOperator extends Operator {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		for(int i =0;i<scanOperatorList.size();i++) {
-			scanOperatorList.get(i).reset();
+		//init scan operator, and add them to list
+		scanOperatorList.clear();
+		tupleList.clear();
+		firstInvoke=true;
+		for(int i =0;i<atomList.size();i++) {
+			ScanOperator scanOperator=new ScanOperator(atomList.get(i),dbCatalogue);
+			scanOperatorList.add(scanOperator);
 		}
 	}
 	/**
@@ -166,5 +187,15 @@ public class JoinOperator extends Operator {
 		}
 		return true;
 	}
+	
+	public boolean compareTuple(Tuple tuple,List<ComparisonAtom> comparisonBody) {
+		SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple,true);
+		tuple=selectOperator.getNextTuple();
+		if(!tuple.getTableName().equals("NonVaild")) {
+			return true;
+		}
+		return false;
+	}
+	
 	
 }

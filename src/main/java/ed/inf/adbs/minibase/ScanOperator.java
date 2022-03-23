@@ -73,7 +73,11 @@ public class ScanOperator extends Operator{
 		// TODO Auto-generated method stub
 		//read database to get tuple
 		try {
-			stringTem=bufferTem.readLine();
+			if(bufferTem==null) {
+				return null;
+			}else {
+				stringTem=bufferTem.readLine();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -99,11 +103,9 @@ public class ScanOperator extends Operator{
 					}else {
 						quotation=false;
 					}
-					
 				}
 				
 			}
-			
 			String[] cataArr=stringTem.split(",");
             value=new ArrayList<String>();
             for (int i=0;i<cataArr.length;i++) {

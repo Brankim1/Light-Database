@@ -13,7 +13,7 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
 import ed.inf.adbs.minibase.base.Term;
 
 /**
- * process ComparisonAtom in each tuple
+ * process ComparisonAtom
  * @author Pengcheng Jin
  *
  */
@@ -26,44 +26,42 @@ public class SelectOperator extends Operator {
 	boolean condition=true;
 	//scan operator, used in only one relational atom
 	Operator operator;
-	//RelationalAtom, used in only one relational atom
-	RelationalAtom atom; 
 	//DatabaseCatalog, used in only one relational atom
 	DatabaseCatalog dbCatalogue;
 	RelationalAtom bodyAtom;
 	//if tuple not valid, return it
 	List<String> NonValidString=new ArrayList<String>();
-	
+	//Join invoke
+	Boolean joinInvoke=false;
 	/**
-	 * init select operator for only one relationalAtom
+	 * init select operator for multiple relationalAtom
 	 * @param comparisonList
 	 * @param atom
 	 * @param dbCatalogue
 	 */
-	public SelectOperator(Operator operator,List<ComparisonAtom> comparisonList,RelationalAtom atom, DatabaseCatalog dbCatalogue) {
+	public SelectOperator(Operator operator,List<ComparisonAtom> comparisonList, DatabaseCatalog dbCatalogue) {
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
-		this.atom=atom;
 		this.bodyAtom=bodyAtom;
 		this.dbCatalogue=dbCatalogue;
 		this.operator=operator;
 		tuple=operator.getNextTuple();
 		conditionCheck(comparisonList,tuple);
-		operator.reset();
+		this.operator.reset();
 	}
 	/**
-	 * init select operator for multiple relationalAtom and handle only one tuple
+	 * init select operator only for one tuple(in join operator)
 	 * @param comparisonList
-	 * @param tuple
+	 * @param atom
+	 * @param dbCatalogue
 	 */
-	public SelectOperator(List<ComparisonAtom> comparisonList,Tuple tuple) {
+	public SelectOperator(List<ComparisonAtom> comparisonList,Tuple tuple,Boolean joinInvoke) {
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
 		this.tuple=tuple;
-		conditionCheck(comparisonList,tuple);
+		this.joinInvoke=joinInvoke;
 		
 	}
-	
 	/**
 	 * if only one relation atom, invoke scan operator, then run select
 	 * if only one tuple are import, run select
@@ -72,19 +70,20 @@ public class SelectOperator extends Operator {
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
+		if(joinInvoke==true) {
+			tuple=runSelect();
+			joinInvoke=false;
+			return tuple;
+		}
+		
 		if(condition!=true) {
 			return null;
 		}
-		//for multiple relationalAtom and handle only one tuple
-		if(atom==null) {
-			//delete the variable is constant in relationalAtom, such as R(8, y, z)
-			tuple=runSelect();
-		}else {
-			//for only one relationalAtom
-			tuple=operator.getNextTuple();
-			if(tuple!=null) {
-				tuple=runSelect();			
-			}	
+		//for multiple relationalAtom
+		tuple=operator.getNextTuple();
+		if(tuple!=null) {
+			
+			tuple=runSelect();				
 		}
 		return tuple;
 	}
@@ -96,7 +95,7 @@ public class SelectOperator extends Operator {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		operator=new ScanOperator(atom,dbCatalogue);
+		operator.reset();
 	}
 	
 	/**

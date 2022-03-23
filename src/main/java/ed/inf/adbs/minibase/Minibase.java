@@ -28,18 +28,18 @@ public class Minibase {
 	
     public static void main(String[] args) {
 
-//        if (args.length != 3) {
-//            System.err.println("Usage: Minibase database_dir input_file output_file");
-//            return;
-//        }
-//
-//        String databaseDir = args[0];
-//        String inputFile = args[1];
-//        String outputFile = args[2];
-    	String queryName="query8";
-        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\db";
-        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\input\\"+queryName+".txt";
-        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\output\\"+queryName+".csv";
+        if (args.length != 3) {
+            System.err.println("Usage: Minibase database_dir input_file output_file");
+            return;
+        }
+
+        String databaseDir = args[0];
+        String inputFile = args[1];
+        String outputFile = args[2];
+//    	String queryName="query9";
+//        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\db";
+//        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\input\\"+queryName+".txt";
+//        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\output\\"+queryName+".csv";
             
         
         
@@ -50,11 +50,12 @@ public class Minibase {
  
     
     /**
-     *  four steps to evaluate CQ
+     *  five steps to evaluate CQ
      *  1. process CQ
-     *  2. run scan,join,select, project to each tuple
-     *  3. run group By operator to tuple list
-     *  4. save tuple list to file
+     *  2. build query plan
+     *  3. multiple run root operator, and save the result in DatabaseCatalog
+     *  4. run group By operator
+     *  5. save tuple list to file
      * @param databaseDir
      * @param inputFile
      * @param outputFile
@@ -68,11 +69,11 @@ public class Minibase {
     	List<ComparisonAtom> comparisonBody=new ArrayList<ComparisonAtom>();
     	try {
             Query query = QueryParser.parse(Paths.get(inputFile));
-            System.out.println("Entire query: " + query);
             head = query.getHead();
 //            System.out.println("Head: " + head);
             body = query.getBody();
 //            System.out.println("Body: " + body);
+            System.out.println("Entire query: " + query);
             //Separate the relational atom and comparison atom
             for (Atom i:body) {
             	try {
@@ -90,45 +91,18 @@ public class Minibase {
     	
     	//read database schema
         dbCatalogue=new DatabaseCatalog(databaseDir);	
+        
         QueryPlan queryPlan=new QueryPlan(head,relationBody,comparisonBody,dbCatalogue);
         Operator operator = queryPlan.getOperator();
         Tuple tuple=operator.getNextTuple();
         while(tuple!=null) {
-        	if(tuple!=null) {
-        		if(!tuple.getTableName().equals("NonVaild")) {
-        			//System.out.println(tuple.getValue());
-        			dbCatalogue.addTupleList(tuple);
-				}
-        	}
+    		if(!tuple.getTableName().equals("NonVaild")) {
+    			//System.out.println(tuple.getValue());
+    			dbCatalogue.addTupleList(tuple);
+			}
         	tuple=operator.getNextTuple();
         }
-        
-//    	Tuple tuple;
-//    	//process join operator
-//    	JoinOperator joinOperator=new JoinOperator(relationBody,dbCatalogue);
-//    	tuple=joinOperator.getNextTuple();
-//    	//using Iteration model(process join,select, project operators for each tuple)
-//    	while(tuple!=null) {
-//    		if(!tuple.getTableName().equals("NonVaild")) {
-//    			//process select operator
-//    			SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple);
-//	    		tuple=selectOperator.getNextTuple();	
-//	    		if(tuple!=null) {
-//	    			//process project operator
-//	    			ProjectOperator projectOperator=new ProjectOperator(head,tuple);
-//	    			tuple=projectOperator.getNextTuple();
-//	    			//store each tuple to dbCatalogue
-//	    			if(tuple!=null) {
-//	    				dbCatalogue.addTupleList(tuple);
-//	    			}
-//	    			
-//	    		}
-//    		}
-//    		tuple=joinOperator.getNextTuple();
-//    	}
-    	
-    	
-    	
+
     	if(dbCatalogue.getTupleList().size()!=0) {
     		//delete Duplicate tuple and execute SUM and AVG
         	GroupBy groupBy=new GroupBy(head,dbCatalogue);
@@ -145,9 +119,9 @@ public class Minibase {
      * @param outputFile
      */
     public static void writeToFile(String outputFile) {
-    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
-			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
-		}
+//    	for (int i =0 ;i <dbCatalogue.getTupleList().size();i++) {
+//			System.out.println(dbCatalogue.getTupleList().get(i).getValue());
+//		}
     	//Create output file dictionary
     	File csvFile = new File(outputFile);
     	if(!csvFile.getParentFile().exists()) {

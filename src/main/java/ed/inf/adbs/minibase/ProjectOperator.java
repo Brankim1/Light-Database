@@ -12,7 +12,7 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
 import ed.inf.adbs.minibase.base.Term;
 
 /**
- * process project to each tuple
+ * process project operator
  * @author Pengcheng Jin
  *
  */
@@ -31,21 +31,10 @@ public class ProjectOperator extends Operator{
 	List<ComparisonAtom> comparisonList;
 	//DatabaseCatalog, used in only one relational atom
 	DatabaseCatalog dbCatalogue;
-
-	/**
-	 * initialize project operator for only one tuple
-	 * @param head atom
-	 * @param tuple
-	 */
-	public ProjectOperator(RelationalAtom atom,Tuple tuple) {
-		this.atom=atom;
-		this.oldTuple=tuple;
-		head=new ArrayList<Term>();
-		head=atom.getTerms();	
-	}
 	
 	/**
 	 * initialize project operator for one body relation atom
+	 * @param operator
 	 * @param headAtom
 	 * @param comparisonList
 	 * @param bodyAtom
@@ -71,16 +60,15 @@ public class ProjectOperator extends Operator{
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
-		if(comparisonList==null) {
-			tuple=runProject();
-		}else {
-			oldTuple=operator.getNextTuple();
-			if(oldTuple!=null) {
-				if(!oldTuple.getTableName().equals("NonVaild")) {
-					oldTuple=runProject();
-				}
+		
+		oldTuple=operator.getNextTuple();
+		if(oldTuple!=null) {
+			if(!oldTuple.getTableName().equals("NonVaild")) {
+				
+				oldTuple=runProject();
 			}
 		}
+		
 		tuple=oldTuple;
 		return tuple;
 	}
@@ -91,20 +79,31 @@ public class ProjectOperator extends Operator{
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		//selectOperator= new SelectOperator(comparisonList,bodyAtom,dbCatalogue);
+		operator.reset();
 	}
+	
 	/**
 	 * multiple run getNextTuple()
 	 */
 	@Override
 	public void dump() {
 		// TODO Auto-generated method stub
-		tuple = getNextTuple();
+		
         while (tuple!=null) {
+            if(!tuple.getTableName().equals("NonVaild")) {
+    			//System.out.println(tuple.getValue());
+    			dbCatalogue.addTupleList(tuple);
+			}
             tuple = getNextTuple();
         }
 	}
-
+	/**
+	 * there are three steps:
+	 * 1. only Retain selected columns 
+	 * 2. delete Duplicate column(which may caused by join operator)
+	 * 3. order the column
+	 * @return tuple
+	 */
 	public Tuple runProject() {
 		if(head.size()!=0) {
 			//delete the column that not selected

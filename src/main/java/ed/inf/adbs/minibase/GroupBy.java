@@ -13,6 +13,7 @@ import ed.inf.adbs.minibase.base.Term;
 
 /**
  * It could Execute SUM & AVG and Delete Duplicate tuple
+ * I didn't extend Operator, because GroupBy operator needs read all tuple once. It is not belongs to Iteration model.
  * @author Pengcheng Jin
  * 
  */
@@ -23,7 +24,7 @@ public class GroupBy{
 	DatabaseCatalog dbCatalogue;
 	//head atom
 	RelationalAtom atom;
-
+	//map for sum and avg
 	HashMap<String, List<Integer>> map;
 	
 	/**
@@ -38,8 +39,8 @@ public class GroupBy{
 		map = new HashMap<String, List<Integer>>();
 		tupleList=new ArrayList<Tuple>();
 		tupleList.addAll(dbCatalogue.getTupleList());
-		//Execute SUM & AVG, Delete Duplicate tuple
-						
+		
+		//Execute SUM & AVG, Delete Duplicate tuple by hash map		
 		if(atom.getTerms().get(atom.getTerms().size()-1).toString().contains("SUM")||atom.getTerms().get(atom.getTerms().size()-1).toString().contains("AVG")) {
 			int sum=0;
 			for(int j=0;j<tupleList.size();j++) {
@@ -68,17 +69,17 @@ public class GroupBy{
 			for (String key : map.keySet()) {
 				String[] cataArr=key.split(",");
 				List<String> newString=new ArrayList<String>();
-				if(cataArr.length==0) {
+				if(key.length()!=0) {
 					for(int i=0;i<cataArr.length;i++) {
 						newString.add(cataArr[i]);
 					}
-				}				
+				}	
 				newString.add(map.get(key).get(0).toString());
 				Tuple tuple=new Tuple(tupleList.get(0).getTableName(),tupleList.get(0).getColumnType(),tupleList.get(0).getColumnName(),newString);
 				newTupleList.add(tuple);
 			}
 		}else {
-			//Delete Duplicate tuple
+			//Delete Duplicate tuple if there is no group by
 			int numk=0;
 			int numm=0;
 			while(numk<tupleList.size()) {
@@ -96,11 +97,14 @@ public class GroupBy{
 			}
 			newTupleList=tupleList;
 		}
-		
-		
 		//store the new tuple to dbCatalogue
 		dbCatalogue.setTupleList(newTupleList);
 	}
+	/**
+	 * the group-by is in the last term, so merge others terms
+	 * @param tuple
+	 * @return key
+	 */
 	public String getKey(Tuple tuple) {
 		String key="";
 		
