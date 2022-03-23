@@ -25,26 +25,31 @@ public class SelectOperator extends Operator {
 	//check ComparisonAtom is valid
 	boolean condition=true;
 	//scan operator, used in only one relational atom
-	ScanOperator scanOperator;
+	Operator operator;
 	//RelationalAtom, used in only one relational atom
 	RelationalAtom atom; 
 	//DatabaseCatalog, used in only one relational atom
 	DatabaseCatalog dbCatalogue;
-
+	RelationalAtom bodyAtom;
+	//if tuple not valid, return it
+	List<String> NonValidString=new ArrayList<String>();
+	
 	/**
 	 * init select operator for only one relationalAtom
 	 * @param comparisonList
 	 * @param atom
 	 * @param dbCatalogue
 	 */
-	public SelectOperator(List<ComparisonAtom> comparisonList,RelationalAtom atom, DatabaseCatalog dbCatalogue) {
+	public SelectOperator(Operator operator,List<ComparisonAtom> comparisonList,RelationalAtom atom, DatabaseCatalog dbCatalogue) {
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
 		this.atom=atom;
+		this.bodyAtom=bodyAtom;
 		this.dbCatalogue=dbCatalogue;
-		scanOperator=new ScanOperator(atom,dbCatalogue);
-		tuple=scanOperator.getNextTuple();
+		this.operator=operator;
+		tuple=operator.getNextTuple();
 		conditionCheck(comparisonList,tuple);
+		operator.reset();
 	}
 	/**
 	 * init select operator for multiple relationalAtom and handle only one tuple
@@ -76,8 +81,10 @@ public class SelectOperator extends Operator {
 			tuple=runSelect();
 		}else {
 			//for only one relationalAtom
-			tuple=scanOperator.getNextTuple();
-			tuple=runSelect();
+			tuple=operator.getNextTuple();
+			if(tuple!=null) {
+				tuple=runSelect();			
+			}	
 		}
 		return tuple;
 	}
@@ -89,7 +96,7 @@ public class SelectOperator extends Operator {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		scanOperator=new ScanOperator(atom,dbCatalogue);
+		operator=new ScanOperator(atom,dbCatalogue);
 	}
 	
 	/**
@@ -114,7 +121,7 @@ public class SelectOperator extends Operator {
 	public Tuple runSelect() {
 		for(int j=0;j<tuple.getColumnName().size();j++) {
 			if(!variable(tuple.getColumnName().get(j))&&!tuple.getValue().get(j).equals(tuple.getColumnName().get(j))) {
-				return null;
+				return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 			}
 		}		
 		for(ComparisonAtom comparAtom:comparisonList) {
@@ -131,32 +138,32 @@ public class SelectOperator extends Operator {
 								switch(operator) {
 									case EQ:
 										if(!tuple.getValue().get(j).equals(tuple.getValue().get(k))){
-											return null;
+											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 										}		
 										break;
 									case NEQ:
 										if(tuple.getValue().get(j).equals(tuple.getValue().get(k))){
-											return null;	
+											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 										}
 										break;
 									case GT:
 										if(Integer.valueOf(tuple.getValue().get(j).trim())<=Integer.valueOf(tuple.getValue().get(k).trim())){
-											return null;	
+											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 										}
 										break;
 									case GEQ:
 										if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(tuple.getValue().get(k))){
-											return null;	
+											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 										}
 										break;
 									case LT:
 										if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(tuple.getValue().get(k))){
-											return null;	
+											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 										}
 										break;
 									case LEQ:
 										if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(tuple.getValue().get(k))){
-											return null;	
+											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 										}
 										break;
 								}
@@ -174,35 +181,35 @@ public class SelectOperator extends Operator {
 						switch(operator) {
 							case EQ:
 								if(!tuple.getValue().get(j).equals(secondElem)){
-									return null;			
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);			
 								}		
 								break;
 							case NEQ:	
 								if(tuple.getValue().get(j).equals(secondElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 			
 								}
 								break;
 							case GT:
 								
 								if(Integer.valueOf(tuple.getValue().get(j))<=Integer.valueOf(secondElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
 								break;
 							case GEQ:
 								if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(secondElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 								}
 								break;
 							case LT:
 								if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(secondElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 								}
 								break;
 							case LEQ:
 								if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(secondElem)){
-									return null;	
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 								}
 								break;
 						}	
@@ -216,36 +223,36 @@ public class SelectOperator extends Operator {
 						switch(operator) {
 							case EQ:
 								if(!tuple.getValue().get(j).equals(firstElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 								}		
 								break;
 							case NEQ:
 								if(tuple.getValue().get(j).equals(firstElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
 								break;
 							case GT:
 								if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(firstElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
 								break;
 							case GEQ:
 								if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(firstElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
 								break;
 							case LT:
 								if(Integer.valueOf(tuple.getValue().get(j))<=Integer.valueOf(firstElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
 								break;
 							case LEQ:
 								if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(firstElem)){
-									return null;
+									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
 								break;

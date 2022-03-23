@@ -26,11 +26,9 @@ public class ProjectOperator extends Operator{
 	Tuple newTuple;
 	Tuple tuple;
 	//select operator, used in only one relational atom
-	SelectOperator selectOperator;
+	Operator operator;
 	//ComparisonAtom, used in only one relational atom
 	List<ComparisonAtom> comparisonList;
-	//RelationalAtom, used in only one relational atom
-	RelationalAtom bodyAtom;
 	//DatabaseCatalog, used in only one relational atom
 	DatabaseCatalog dbCatalogue;
 
@@ -43,8 +41,7 @@ public class ProjectOperator extends Operator{
 		this.atom=atom;
 		this.oldTuple=tuple;
 		head=new ArrayList<Term>();
-		head=atom.getTerms();
-		
+		head=atom.getTerms();	
 	}
 	
 	/**
@@ -54,13 +51,13 @@ public class ProjectOperator extends Operator{
 	 * @param bodyAtom
 	 * @param dbCatalogue
 	 */
-	public ProjectOperator(RelationalAtom headAtom,List<ComparisonAtom> comparisonList,RelationalAtom bodyAtom, DatabaseCatalog dbCatalogue) {
+	public ProjectOperator(Operator operator,RelationalAtom headAtom,List<ComparisonAtom> comparisonList, DatabaseCatalog dbCatalogue) {
 		this.atom=headAtom;
 		this.comparisonList=new ArrayList<ComparisonAtom>();
 		this.comparisonList=comparisonList;
-		this.bodyAtom=bodyAtom;
-		this.dbCatalogue=dbCatalogue;		
-		selectOperator= new SelectOperator(comparisonList,bodyAtom,dbCatalogue);
+		this.dbCatalogue=dbCatalogue;
+		this.operator=operator;
+		
 		head=new ArrayList<Term>();
 		head=atom.getTerms();
 	}
@@ -74,12 +71,17 @@ public class ProjectOperator extends Operator{
 	@Override
 	public Tuple getNextTuple() {
 		// TODO Auto-generated method stub
-		if(bodyAtom==null) {
+		if(comparisonList==null) {
 			tuple=runProject();
 		}else {
-			tuple=selectOperator.getNextTuple();
-			tuple=runProject();
+			oldTuple=operator.getNextTuple();
+			if(oldTuple!=null) {
+				if(!oldTuple.getTableName().equals("NonVaild")) {
+					oldTuple=runProject();
+				}
+			}
 		}
+		tuple=oldTuple;
 		return tuple;
 	}
 	
@@ -89,7 +91,7 @@ public class ProjectOperator extends Operator{
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		selectOperator= new SelectOperator(comparisonList,bodyAtom,dbCatalogue);
+		//selectOperator= new SelectOperator(comparisonList,bodyAtom,dbCatalogue);
 	}
 	/**
 	 * multiple run getNextTuple()
