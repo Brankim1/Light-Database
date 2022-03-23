@@ -2,15 +2,15 @@
 
 The Join Algorithm:
 Using block nested loops join
-Join multiple tables, all table are stored in the List<ScanOperator>, then invoke getNextTuple() once to return one tuple(Iterative model) 
- * 1. set a tuple list that store each join table first tuple;
- * 2. use one index to mark tables.
- * 3. let index =0 , then multiple run getNextTuple() in index List<ScanOperator>.(it could ensure it is left join)
- * 4. ScanOperator getNextTuple() will return a tuple, then invoke Select Operator to compare tuple.
- * 5. if selectOperator return a valid tuple, merge the list tuple to a full tuple
- * 6. check the full tuple is valid, if different table column name is same, the value should same. then return the full tuple.
- * 7. if first table return null, set first table reset(), then index+1
- * 8. run the Second table getNextTuple(), then index to zero, multiple run getNextTuple() in first table in List<ScanOperator>.
+Join multiple tables, all table are stored in the List<ScanOperator>(Line63), then invoke getNextTuple() once to return one tuple(Iterative model) 
+ * 1. set a tuple list that store each join table first tuple;(Line81)
+ * 2. use one index to mark tables.(Line97-123)
+ * 3. let index =0 , then multiple run getNextTuple() in index List<ScanOperator>.(it could ensure it is left join)(Line105&122)
+ * 4. ScanOperator getNextTuple() will return a tuple, then invoke Select Operator to compare tuple.(Line102)
+ * 5. if selectOperator return a valid tuple, merge the list tuple to a full tuple.(Line107)
+ * 6. check the full tuple is valid, if different table column name is same, the value should same. then return the full tuple.(Line109)
+ * 7. if first table return null, set first table reset(), then index+1;(Line119-123)
+ * 8. run the Second table getNextTuple(), then index to zero, multiple run getNextTuple() in first table in List<ScanOperator>.(Line104-106)
  * 9. then multiple run it, it could return all join tuple.
  
  In summary, the join operator has a select operator child , then the select operator has a scan operator child . It could ensure the join algorithm avoid cross product. 

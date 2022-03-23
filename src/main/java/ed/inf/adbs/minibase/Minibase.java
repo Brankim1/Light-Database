@@ -36,12 +36,11 @@ public class Minibase {
         String databaseDir = args[0];
         String inputFile = args[1];
         String outputFile = args[2];
-//    	String queryName="query9";
+//    	String queryName="query4";
 //        String databaseDir="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\db";
 //        String inputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\input\\"+queryName+".txt";
 //        String outputFile="C:\\Users\\11791\\Desktop\\ADBS CW\\Minibase\\data\\evaluation\\output\\"+queryName+".csv";
             
-        
         
         evaluateCQ(databaseDir, inputFile, outputFile);
         

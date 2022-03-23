@@ -146,24 +146,52 @@ public class SelectOperator extends Operator {
 										}
 										break;
 									case GT:
-										if(Integer.valueOf(tuple.getValue().get(j).trim())<=Integer.valueOf(tuple.getValue().get(k).trim())){
-											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+										try {
+											if(Integer.valueOf(tuple.getValue().get(j).trim())<=Integer.valueOf(tuple.getValue().get(k).trim())){
+												return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+											}
+										}catch(Exception e){
+											if(tuple.getValue().get(j).trim().compareTo(tuple.getValue().get(k).trim())<=0){
+												return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+											}
 										}
+										
 										break;
 									case GEQ:
-										if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(tuple.getValue().get(k))){
-											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
+										try {
+											if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(tuple.getValue().get(k))){
+												return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
+											}
+										}catch(Exception e){
+											if(tuple.getValue().get(j).trim().compareTo(tuple.getValue().get(k).trim())<0){
+												return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+											}
 										}
+										
 										break;
 									case LT:
-										if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(tuple.getValue().get(k))){
+										try {
+											if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(tuple.getValue().get(k))){
 											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 										}
+										}catch(Exception e){
+											if(tuple.getValue().get(j).trim().compareTo(tuple.getValue().get(k).trim())>=0){
+												return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+											}
+										}
+										
 										break;
 									case LEQ:
-										if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(tuple.getValue().get(k))){
+										try {
+											if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(tuple.getValue().get(k))){
 											return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 										}
+										}catch(Exception e){
+											if(tuple.getValue().get(j).trim().compareTo(tuple.getValue().get(k).trim())>0){
+												return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+											}
+										}
+										
 										break;
 								}
 								break;
@@ -190,26 +218,53 @@ public class SelectOperator extends Operator {
 								}
 								break;
 							case GT:
-								
-								if(Integer.valueOf(tuple.getValue().get(j))<=Integer.valueOf(secondElem)){
-									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
-									
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))<=Integer.valueOf(secondElem)){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+										
+									}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(secondElem))<=0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
 								}
+								
 								break;
 							case GEQ:
-								if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(secondElem)){
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(secondElem)){
 									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 								}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(secondElem))<0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}
+								
 								break;
 							case LT:
-								if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(secondElem)){
-									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(secondElem)){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(secondElem))>=0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
 								}
+								
 								break;
 							case LEQ:
-								if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(secondElem)){
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(secondElem)){
 									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);	
 								}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(secondElem))>0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}
+								
 								break;
 						}	
 						break;
@@ -232,28 +287,56 @@ public class SelectOperator extends Operator {
 								}
 								break;
 							case GT:
-								if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(firstElem)){
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))>=Integer.valueOf(firstElem)){
 									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(firstElem))>=0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}
+								
 								break;
 							case GEQ:
-								if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(firstElem)){
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))>Integer.valueOf(firstElem)){
 									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(firstElem))>0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}
+								
 								break;
 							case LT:
-								if(Integer.valueOf(tuple.getValue().get(j))<=Integer.valueOf(firstElem)){
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))<=Integer.valueOf(firstElem)){
 									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(firstElem))<=0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}
+								
 								break;
 							case LEQ:
-								if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(firstElem)){
+								try {
+									if(Integer.valueOf(tuple.getValue().get(j))<Integer.valueOf(firstElem)){
 									return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
 									
 								}
+								}catch(Exception e){
+									if((tuple.getValue().get(j).compareTo(firstElem))<0){
+										return new Tuple("NonVaild",NonValidString,NonValidString,NonValidString);
+									}
+								}
+								
 								break;
 							
 						}
@@ -314,17 +397,6 @@ public class SelectOperator extends Operator {
 				
 			}
 			
-			//if one of the comparAtom is string, operator must = or !=
-			if(condition) {
-				if(string(atom1)||string(atom2)) {
-					if(op.equals("=")||op.equals("!=")) {
-						
-					}else {
-						condition=false;
-						//System.out.println("Condition false4, Terminate");
-					}
-				}		
-			}
 			
 			//if both variable, must same data type
 			if(condition) {

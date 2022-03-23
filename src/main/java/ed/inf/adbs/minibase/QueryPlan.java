@@ -17,9 +17,9 @@ import ed.inf.adbs.minibase.base.RelationalAtom;
  *
  */
 public class QueryPlan {
-
+	//operator
 	Operator operator;
-	int index=0;
+
 	//query tree generate
 	public QueryPlan(RelationalAtom head,List<RelationalAtom> relationBody,List<ComparisonAtom> comparisonBody, DatabaseCatalog dbCatalogue) {
 		if(relationBody.size()==1) {
@@ -40,6 +40,10 @@ public class QueryPlan {
 		operator=new ProjectOperator(operator,head,comparisonBody,dbCatalogue);
 		
 	}
+	/**
+	 * get operator from other class
+	 * @return operator
+	 */
 	public Operator getOperator() {
 		return operator;
 	}

@@ -83,9 +83,7 @@ public class JoinOperator extends Operator {
 			}
 			//change tuple list to a list
 			tuple=ListToTuple(tupleList);
-//			System.out.println(kkk);
-//			System.out.println(tuple.getValue());
-//			kkk++;
+
 			//check tuple is valid(such as x should same)
 			if(tupleValid(tuple)) {
 				return tuple;
@@ -171,7 +169,7 @@ public class JoinOperator extends Operator {
 		
 	}
 	/**
-	 * check tuple valid(same column should have same value)
+	 * check tuple valid(same column should have same value),such as R(x,y),S(x,z)
 	 * @param tuple
 	 * @return true/false
 	 */
@@ -187,7 +185,12 @@ public class JoinOperator extends Operator {
 		}
 		return true;
 	}
-	
+	/**
+	 * single table value compare
+	 * @param tuple
+	 * @param comparisonBody
+	 * @return true/false
+	 */
 	public boolean compareTuple(Tuple tuple,List<ComparisonAtom> comparisonBody) {
 		SelectOperator selectOperator=new SelectOperator(comparisonBody,tuple,true);
 		tuple=selectOperator.getNextTuple();
