@@ -109,6 +109,8 @@ public class Minibase {
     		writeToFile(outputFile);
     	}else {
     		System.out.println("No result");
+    		//write to csv file
+    		writeToFile(outputFile);
     	}
     	
     }
