@@ -1,4 +1,6 @@
-# Minibase
+# Light-Database
+This program is a Java based light database, which could process Join, Select, Project, Scan, Sum, Avg Operators.
+At the same time, this program could Minimize the Conjunctive Queries, which is a NP-Hard problem.
 
 The Join Algorithm:
 Using block nested loops join
